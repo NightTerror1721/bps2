@@ -6,27 +6,27 @@
 *.lo
 *.o
 *.obj
+*.suo
+*.db
+*.opendb
 
 # Precompiled Headers
 *.gch
 *.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+*.ipch
+/.vs*
 
 # Fortran module files
 *.mod
 *.smod
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
 # Executables
 *.exe
 *.out
 *.app
+
+#sfml
+
+SFML-2.5.1/bin
+SFML-2.5.1/doc
+SFML-2.5.1/examples
