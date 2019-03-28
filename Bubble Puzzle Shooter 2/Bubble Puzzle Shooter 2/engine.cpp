@@ -1,6 +1,6 @@
 #include "engine.h"
 
-void Entity::draw(const sf::RenderTarget& g) {}
+void Entity::draw(sf::RenderTarget *const (&g)) {}
 void Entity::update(const delta_t& delta) {}
 void Entity::dispatchEvent(const sf::Event& event) {}
 
@@ -17,8 +17,8 @@ Frame::~Frame()
 		while (it != _entities.end())
 		{
 			Entity* e = *it;
-			_entities.erase(it++);
 			delete e;
+			it++;
 		}
 		_entities.clear();
 	}
@@ -26,13 +26,13 @@ Frame::~Frame()
 
 void Frame::addEntity(Entity* e)
 {
-	if(!e)
+	if(e)
 		_entities.push_back(e);
 }
 
 void Frame::removeEntity(Entity* e)
 {
-	if (!e)
+	if (e)
 	{
 		auto it = std::find(_entities.begin(), _entities.end(), e);
 		if (it != _entities.end())
@@ -71,6 +71,22 @@ void Frame::forEachEntity(void(*action)(Entity *const e)) const
 		action(e);
 }
 
+void Frame::draw(sf::RenderTarget *const (&g))
+{
+	for (auto e : _entities)
+		e->draw(g);
+}
+void Frame::update(const delta_t& delta)
+{
+	for (auto e : _entities)
+		e->update(delta);
+}
+void Frame::dispatchEvent(const sf::Event& event)
+{
+	for (auto e : _entities)
+		e->dispatchEvent(event);
+}
+
 
 
 
@@ -89,8 +105,8 @@ GameController::~GameController()
 		while (it != _entities.end())
 		{
 			auto e = *it;
-			_entities.erase(it++);
 			delete e;
+			it++;
 		}
 		_entities.clear();
 	}
@@ -204,7 +220,7 @@ void GameController::render()
 
 	_window.clear();
 	for (auto e : _entities)
-		e->draw(_window);
+		e->draw(&_window);
 	_window.display();
 }
 

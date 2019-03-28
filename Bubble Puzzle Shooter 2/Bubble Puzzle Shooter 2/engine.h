@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SFML/Graphics.hpp"
+#include <SFML/Graphics.hpp>
 #include "utils.h"
 
 #include <string>
@@ -42,12 +42,15 @@ public:
 
 	inline bool hasAttached() { return _gc != nullptr; }
 
-	virtual void draw(const sf::RenderTarget& g);
+	virtual void draw(sf::RenderTarget *const (&g));
 	virtual void update(const delta_t& delta);
 	virtual void dispatchEvent(const sf::Event& event);
 
 	friend class GameController;
 };
+
+
+/* PREDEFINED ENTITIES */
 
 class Frame : public Entity
 {
@@ -71,7 +74,22 @@ public:
 	void forEachEntity(void(*action)(Entity *const e)) const;
 
 	inline size_t getEntityCount() const { return _entities.size(); }
+
+	virtual void draw(sf::RenderTarget *const (&g));
+	virtual void update(const delta_t& delta);
+	virtual void dispatchEvent(const sf::Event& event);
 };
+
+class PhysicalEntity : public Entity, public sf::Sprite
+{
+public:
+	inline PhysicalEntity(const std::string& tag) : Entity(tag), Sprite() {}
+	inline PhysicalEntity(const char* tag = "") : Entity(tag), Sprite() {}
+};
+
+
+
+/* GAME CONTROLLER */
 
 class GameController
 {
