@@ -143,12 +143,14 @@
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="assets.cpp" />
+    <ClCompile Include="py.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bubbles.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="assets.h" />
+    <ClInclude Include="py.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

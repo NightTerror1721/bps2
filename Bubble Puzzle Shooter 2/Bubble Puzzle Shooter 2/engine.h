@@ -1,14 +1,11 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <pybind11/pybind11.h>
-#include <pybind11/embed.h>
 #include "utils.h"
+#include "py.h"
 
 #include <string>
 #include <vector>
-
-namespace py = pybind11;
 
 using delta_t = float;
 class GameController;
@@ -79,9 +76,9 @@ public:
 
 	inline size_t getEntityCount() const { return _entities.size(); }
 
-	virtual void draw(sf::RenderTarget *const (&g));
-	virtual void update(const delta_t& delta);
-	virtual void dispatchEvent(const sf::Event& event);
+	virtual void draw(sf::RenderTarget *const (&g)) override;
+	virtual void update(const delta_t& delta) override;
+	virtual void dispatchEvent(const sf::Event& event) override;
 };
 
 class PhysicalEntity : public Entity, public sf::Sprite

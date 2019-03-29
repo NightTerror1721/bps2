@@ -1,7 +1,7 @@
-﻿  bubbles.cpp
+﻿  assets.cpp
+  bubbles.cpp
   engine.cpp
   main.cpp
-  assets.cpp
-  utils.cpp
+  py.cpp
   Generando código...
   Bubble Puzzle Shooter 2.vcxproj -> D:\BPS2\Bubble Puzzle Shooter 2\Debug\Bubble Puzzle Shooter 2.exe

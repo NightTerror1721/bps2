@@ -1,7 +1,8 @@
 #pragma once
 
-#include "SFML/Graphics.hpp"
+#include <SFML/Graphics.hpp>
 #include "utils.h"
+#include "py.h"
 
 #include <map>
 
@@ -21,6 +22,11 @@ public:
 	inline Texture* loadTexture(const std::string& file, const std::string& tag, uint32 x, uint32 y, uint32 width, uint32 height)
 	{
 		return loadTexture(file, tag, sf::IntRect(x, y, width, height));
+	}
+
+	void __py__loadTexture(std::string& file, std::string& tag, uint32 x, uint32 y, uint32 width, uint32 height)
+	{
+		loadTexture(file, tag, sf::IntRect(x, y, width, height));
 	}
 
 	void destroyTexture(const std::string& tag);

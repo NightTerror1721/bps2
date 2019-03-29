@@ -53,3 +53,11 @@ void TextureManager::destroyAllTextures()
 
 void bind(Texture* (&texture)) { Texture::bind(texture); }
 void unbind() { Texture::bind(NULL); }
+
+PYBIND11_EMBEDDED_MODULE(__texture_import, m) {
+	py::class_<TextureManager> tm(m, "TextureManager");
+
+	tm.def("loadTexture", &TextureManager::__py__loadTexture);
+
+	//m.def("registerTexture")
+}

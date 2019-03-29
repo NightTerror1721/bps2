@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 		std::cout << "Texture " << "assets/bubbles/color.png" << " loaded correctly" << std::endl;*/
 
 
-	TextureManager texs;
+	/*TextureManager texs;
 
 	texs.loadTexture("assets/bubbles/color.png", "bubble.colors", 0, 0, 384, 256);
 
@@ -52,13 +52,17 @@ int main(int argc, char** argv)
 
 	Frame* frame = new Frame();
 
-	frame->addEntity(cb);
+	frame->addEntity(cb);*/
 	
 
 
 	GameController gc("Bubble Puzzle Shooter");
 	gc.setVideoMode({ 640, 480 }, false);
-	gc.addEntity(frame);
+
+	run_py_file("data/textures/cache.py");
+
+
+	//gc.addEntity(frame);
 	gc.start();
 
 
