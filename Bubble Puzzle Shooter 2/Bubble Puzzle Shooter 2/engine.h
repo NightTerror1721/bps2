@@ -1,10 +1,14 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <pybind11/pybind11.h>
+#include <pybind11/embed.h>
 #include "utils.h"
 
 #include <string>
 #include <vector>
+
+namespace py = pybind11;
 
 using delta_t = float;
 class GameController;
@@ -97,6 +101,8 @@ private:
 	bool _close;
 	sf::RenderWindow _window;
 	std::vector<Entity*> _entities;
+
+	py::scoped_interpreter _py;
 
 	sf::Clock _deltaClock;
 	sf::Time _phAccumulator;
