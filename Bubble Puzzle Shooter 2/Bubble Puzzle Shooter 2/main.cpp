@@ -64,7 +64,9 @@ int main(int argc, char** argv)
 
 	run_py_file("data/textures/cache.py");
 
-	run_py_file("data/bubbles/bubbles.py");
+	run_py_file("data/bubbles/cache.py");
+
+	run_py_file("data/audio/cache.py");
 
 
 	//gc.addEntity(frame);

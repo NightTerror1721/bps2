@@ -1,8 +1,9 @@
 #include "audio.h"
+#include "py.h"
 
 #define CHECK_SIZE if(this->_size >= 255) { return; }
 
-AudioController _instance;
+AudioController AudioController::_instance;
 
 AudioController::~AudioController()
 {
@@ -77,7 +78,7 @@ sf::Sound* AudioController::getSound(const std::string& tag)
 		return &(*it).second.second;
 }
 
-void AudioController::playMusic(const std::string& tag = "")
+void AudioController::playMusic(const std::string& tag)
 {
 	auto it = _musics.find(tag);
 	if (it != _musics.cend())
@@ -116,3 +117,28 @@ void AudioController::pauseMusic()
 			_cmusic->pause();
 	}
 }
+
+
+
+PYBIND11_EMBEDDED_MODULE(__audio, m) {
+	m.def("loadSound", [](const std::string& filename, const std::string& tag) {
+		audio_loadSound(filename, tag);
+	});
+
+	m.def("openMusic", [](const std::string& filename, const std::string& tag) {
+		audio_openMusic(filename, tag);
+	});
+
+	m.def("playSound", [](const std::string& tag) {
+		audio_playSound(tag);
+	});
+
+	m.def("playMusic", [](const std::string& tag) {
+		audio_playMusic(tag);
+	});
+
+	m.def("stopMusic", []() {
+		audio_stopMusic();
+	});
+}
+
