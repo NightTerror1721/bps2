@@ -3,6 +3,8 @@
 #include "engine.h"
 #include "assets.h"
 #include "bubbles.h"
+#include "statics.h"
+#include "audio.h"
 
 #include <filesystem>
 
@@ -54,12 +56,15 @@ int main(int argc, char** argv)
 
 	frame->addEntity(cb);*/
 	
-
+	BubbleManager bm;
+	set_static(bubble_manager, &bm);
 
 	GameController gc("Bubble Puzzle Shooter");
 	gc.setVideoMode({ 640, 480 }, false);
 
 	run_py_file("data/textures/cache.py");
+
+	run_py_file("data/bubbles/bubbles.py");
 
 
 	//gc.addEntity(frame);

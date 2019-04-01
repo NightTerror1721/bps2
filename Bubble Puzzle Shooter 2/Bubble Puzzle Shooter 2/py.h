@@ -2,6 +2,7 @@
 #define __PY_UTILS_CPP__
 
 #include <pybind11/embed.h>
+#include <pybind11/functional.h>
 
 namespace py = pybind11;
 

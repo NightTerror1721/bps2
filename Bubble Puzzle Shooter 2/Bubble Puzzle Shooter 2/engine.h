@@ -7,7 +7,6 @@
 #include <string>
 #include <vector>
 
-using delta_t = float;
 class GameController;
 
 enum wstyle : uint32
@@ -81,11 +80,11 @@ public:
 	virtual void dispatchEvent(const sf::Event& event) override;
 };
 
-class PhysicalEntity : public Entity, public sf::Sprite
+class PhysicalEntity : public Entity, public sf::Transformable
 {
 public:
-	inline PhysicalEntity(const std::string& tag) : Entity(tag), Sprite() {}
-	inline PhysicalEntity(const char* tag = "") : Entity(tag), Sprite() {}
+	inline PhysicalEntity(const std::string& tag) : Entity(tag), Transformable() {}
+	inline PhysicalEntity(const char* tag = "") : Entity(tag), Transformable() {}
 };
 
 
@@ -108,6 +107,8 @@ private:
 	std::string _name;
 	sf::VideoMode _vmode;
 	wstyle _vstyle;
+
+
 
 public:
 	GameController(const std::string& name);

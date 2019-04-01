@@ -22,6 +22,8 @@ using Vec2f = Vec2;
 using Vec2i = sf::Vector2i;
 using Vec2u = sf::Vector2u;
 
+using delta_t = float;
+
 
 /* UTILS */
 class uuid
@@ -73,4 +75,18 @@ class BPSException : public Throwable
 {
 public:
 	BPSException(const std::string msg = "", const Throwable* cause = nullptr);
+};
+
+class singleton
+{
+protected:
+	singleton() {}
+	~singleton() {}
+
+private:
+	singleton(const singleton&);
+	singleton(singleton&&);
+
+	singleton& operator= (const singleton&);
+	singleton& operator= (singleton&&);
 };

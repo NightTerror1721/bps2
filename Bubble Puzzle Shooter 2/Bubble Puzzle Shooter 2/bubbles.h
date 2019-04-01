@@ -4,10 +4,14 @@
 #include "assets.h"
 
 #include <string>
+#include <functional>
+#include <map>
 
 #define BUBBLE_WIDTH 30
 #define BUBBLE_HEIGHT 26
 #define BUBBLE_RADIUS 15
+
+class Bubble;
 
 class BubbleColor
 {
@@ -48,12 +52,29 @@ public:
 	std::string name() const;
 };
 
+struct BubbleModel
+{
+	std::string name;
+
+	std::function<void(Bubble*, Bubble*)> onCollide;
+	std::function<void(Bubble*)> onInserted;
+	std::function<void(Bubble*)> onExplode;
+	std::function<void(Bubble*, Bubble*)> onNeighborInserted;
+	std::function<void(Bubble*, Bubble*)> onNeighborExplode;
+
+	std::function<void(Bubble*)> init;
+};
+
+
+
+
+
+
+
+
 class Bubble : public PhysicalEntity
 {
 private:
-	bool _exploited;
-
-protected:
 	const TextureManager* _texs;
 	Vec2f _allocScenario;
 	Vec2i _allocCell;
@@ -64,20 +85,48 @@ protected:
 	BubbleColor _bcolor;
 	uint8 _resistence;
 
+	AnimatedSprite _sprite;
+
+	bool _exploited;
+
 protected:
 	Bubble(const std::string& tag, TextureManager* texs);
 
 public:
 	~Bubble();
 
-	virtual void draw(sf::RenderTarget *const (&g));
+	void draw(sf::RenderTarget *const (&g));
+	//void update(delta_t delta);
+
+
 };
 
+
+class BubbleManager
+{
+private:
+	std::map<const std::string, BubbleModel> _models;
+
+public:
+	inline BubbleManager() : _models() {}
+	~BubbleManager();
+
+	BubbleModel* registerBubbleModel(const std::string& name);
+
+	inline BubbleModel* getBubbleModel(const std::string& name) { return &_models[name]; }
+
+	inline bool hasBubbleModel(const std::string& name) const { return _models.find(name) != _models.cend(); }
+
+	void deleteBubbleModel(const std::string& name);
+
+	void clear();
+};
 
 
 /*Color Bubble*/
-class ColorBubble : public Bubble
+/*class ColorBubble : public Bubble
 {
 public:
 	inline ColorBubble(TextureManager* texs, BubbleColor color) : Bubble("ColorBubble", texs) { _bcolor = color; }
-};
+};*/
+
