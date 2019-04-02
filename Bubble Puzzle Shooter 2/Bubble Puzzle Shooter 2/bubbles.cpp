@@ -1,7 +1,8 @@
 #include "bubbles.h"
-#include "statics.h"
 
 #include <SFML/Graphics.hpp>
+
+BubbleManager BubbleManager::_instance;
 
 const BubbleColor BubbleColor::Red(0);
 const BubbleColor BubbleColor::Orange(1);
@@ -56,6 +57,9 @@ void Bubble::draw(sf::RenderTarget *const (&g))
 }
 
 
+
+
+
 BubbleManager::~BubbleManager()
 {
 	clear();
@@ -66,6 +70,13 @@ BubbleModel* BubbleManager::registerBubbleModel(const std::string& name)
 	if (_models.find(name) != _models.end())
 		return nullptr;
 	return &(_models[name] = {});
+}
+
+void BubbleManager::setDefaultModel(const std::string& name)
+{
+	auto it = _models.find(name);
+	if (it != _models.end())
+		_default = &((*it).second);
 }
 
 void BubbleManager::deleteBubbleModel(const std::string& name)
@@ -93,15 +104,23 @@ PYBIND11_EMBEDDED_MODULE(__bubbles, m) {
 	bm.def_readwrite("init", &BubbleModel::init);
 
 	m.def("registerBubbleModel", [](const std::string& name) -> BubbleModel* {
-		auto bm = get_static(bubble_manager);
-		if (bm)
-			return bm->registerBubbleModel(name);
-		return nullptr;
+		return bubman_registerBubbleModel(name);
 	});
 
 	m.def("isRegisteredBubbleModel", [](const std::string& name) -> bool {
-		auto bm = get_static(bubble_manager);
-		return bm && bm->hasBubbleModel(name);
+		return bubman_hasBubbleModel(name);
+	});
+
+	m.def("setDefaultBubbleModel", [](const std::string& name) {
+		bubman_setDefaultModel(name);
+	});
+
+	m.def("getBubbleModel", [](const std::string& name) -> BubbleModel* {
+		return bubman_getBubbleModel(name);
+	});
+
+	m.def("getDefaultBubbleModel", []() -> BubbleModel* {
+		return bubman_getDefaultModel();
 	});
 
 }

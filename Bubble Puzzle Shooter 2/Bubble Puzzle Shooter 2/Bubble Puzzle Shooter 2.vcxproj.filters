@@ -33,10 +33,10 @@
     <ClCompile Include="py.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="statics.cpp">
+    <ClCompile Include="audio.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="audio.cpp">
+    <ClCompile Include="scenario.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
   </ItemGroup>
@@ -56,10 +56,13 @@
     <ClInclude Include="py.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="statics.h">
+    <ClInclude Include="audio.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="audio.h">
+    <ClInclude Include="scenario.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="rng.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>

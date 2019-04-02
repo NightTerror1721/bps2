@@ -3,7 +3,6 @@
 #include "engine.h"
 #include "assets.h"
 #include "bubbles.h"
-#include "statics.h"
 #include "audio.h"
 
 #include <filesystem>
@@ -55,9 +54,6 @@ int main(int argc, char** argv)
 	Frame* frame = new Frame();
 
 	frame->addEntity(cb);*/
-	
-	BubbleManager bm;
-	set_static(bubble_manager, &bm);
 
 	GameController gc("Bubble Puzzle Shooter");
 	gc.setVideoMode({ 640, 480 }, false);

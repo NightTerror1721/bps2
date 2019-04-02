@@ -1,4 +1,9 @@
 ﻿  audio.cpp
+  bubbles.cpp
+  engine.cpp
+  main.cpp
+  assets.cpp
+  utils.cpp
+  Generando código...
 d:\bps2\bubble puzzle shooter 2\bubble puzzle shooter 2\audio.cpp(79): warning C4715: 'AudioController::getSound': no todas las rutas de acceso de control devuelven un valor
-     Creando biblioteca D:\BPS2\Bubble Puzzle Shooter 2\Debug\Bubble Puzzle Shooter 2.lib y objeto D:\BPS2\Bubble Puzzle Shooter 2\Debug\Bubble Puzzle Shooter 2.exp
   Bubble Puzzle Shooter 2.vcxproj -> D:\BPS2\Bubble Puzzle Shooter 2\Debug\Bubble Puzzle Shooter 2.exe

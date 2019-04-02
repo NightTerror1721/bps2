@@ -10,13 +10,16 @@
 using sf::Texture;
 using native_sprite = sf::Sprite;
 
-class TextureManager
+class TextureManager : singleton
 {
 private:
 	std::map<std::string, Texture*> _tex;
 
-public:
+	static TextureManager _instance;
+
 	TextureManager();
+
+public:
 	~TextureManager();
 
 	Texture* loadTexture(const std::string& file, const std::string& tag, const sf::IntRect& area);
@@ -31,7 +34,18 @@ public:
 	Texture* operator[] (const std::string& tag) const;
 
 	void destroyAllTextures();
+
+	friend TextureManager& GetTextureManager();
 };
+
+__forceinline TextureManager& GetTextureManager() { return TextureManager::_instance; }
+
+#define TEXTURE_MANAGER GetTextureManager()
+#define texman_loadTexture(file, tag, x, y, w, h) TEXTURE_MANAGER.loadTexture((file), (tag), (x), (y), (w), (h))
+#define texman_destroyTexture(tag) TEXTURE_MANAGER.destroyTexture((tag))
+#define texman_getTexture(tag) TEXTURE_MANAGER.getTexture((tag))
+#define texman_clear() TEXTURE_MANAGER.destroyAllTextures()
+
 
 void bind(Texture* (&texture));
 void unbind();

@@ -145,7 +145,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="assets.cpp" />
     <ClCompile Include="py.cpp" />
-    <ClCompile Include="statics.cpp" />
+    <ClCompile Include="scenario.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -154,7 +154,8 @@
     <ClInclude Include="engine.h" />
     <ClInclude Include="assets.h" />
     <ClInclude Include="py.h" />
-    <ClInclude Include="statics.h" />
+    <ClInclude Include="rng.h" />
+    <ClInclude Include="scenario.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

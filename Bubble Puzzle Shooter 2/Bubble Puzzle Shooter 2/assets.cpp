@@ -1,8 +1,9 @@
 #include "assets.h"
 #include "utils.h"
-#include "statics.h"
 
 #include <chrono>
+
+TextureManager TextureManager::_instance;
 
 TextureManager::TextureManager() :_tex() {}
 TextureManager::~TextureManager()
@@ -59,9 +60,7 @@ void unbind() { Texture::bind(NULL); }
 
 void __py__load_texture(const std::string& file, const std::string& tag, uint32 x, uint32 y, uint32 width, uint32 height)
 {
-	auto tm = get_static(texture_manager);
-	if (tm)
-		tm->loadTexture(file, tag, x, y, width, height);
+	texman_loadTexture(file, tag, x, y, width, height);
 }
 
 PYBIND11_EMBEDDED_MODULE(__texture_import, m) {

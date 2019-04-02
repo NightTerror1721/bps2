@@ -13,6 +13,9 @@
 
 class Bubble;
 
+using bubble_code_t = std::string;
+using color_mask_t = uint8;
+
 class BubbleColor
 {
 private:
@@ -50,7 +53,17 @@ public:
 	inline bool isColorless() const { return _id == BubbleColor::Colorless._id; }
 
 	std::string name() const;
+
+	inline color_mask_t addToMask(const color_mask_t& mask) const { return isNormalColor() ? mask | (0x1 << _id) : mask; }
+	inline color_mask_t removeToMask(const color_mask_t& mask) const { isNormalColor() ? mask & ~(0x1 << _id) : mask; }
+	inline bool hasInMask(const color_mask_t& mask) const { return isNormalColor() && (mask & (0x1 << _id)) != 0; }
 };
+
+color_mask_t operator+ (const color_mask_t& mask, const BubbleColor& color) { return color.addToMask(mask); }
+color_mask_t operator- (const color_mask_t& mask, const BubbleColor& color) { return color.removeToMask(mask); }
+bool operator& (const color_mask_t& mask, const BubbleColor& color) { return color.hasInMask(mask); }
+
+
 
 struct BubbleModel
 {
@@ -89,11 +102,16 @@ private:
 
 	bool _exploited;
 
+	bubble_code_t _code;
+
 protected:
 	Bubble(const std::string& tag, TextureManager* texs);
 
 public:
 	~Bubble();
+
+	inline void setCode(const bubble_code_t& code) { _code = code; }
+	inline bubble_code_t getCode() { return _code; }
 
 	void draw(sf::RenderTarget *const (&g));
 	//void update(delta_t delta);
@@ -102,25 +120,48 @@ public:
 };
 
 
-class BubbleManager
+
+
+class BubbleManager : singleton
 {
 private:
 	std::map<const std::string, BubbleModel> _models;
+	BubbleModel* _default;
+
+	static BubbleManager _instance;
+
+	inline BubbleManager() : _models() {}
 
 public:
-	inline BubbleManager() : _models() {}
 	~BubbleManager();
 
 	BubbleModel* registerBubbleModel(const std::string& name);
 
+	void setDefaultModel(const std::string& name);
+
 	inline BubbleModel* getBubbleModel(const std::string& name) { return &_models[name]; }
+
+	inline BubbleModel* getDefaultModel() { return _default; }
 
 	inline bool hasBubbleModel(const std::string& name) const { return _models.find(name) != _models.cend(); }
 
 	void deleteBubbleModel(const std::string& name);
 
 	void clear();
+
+	friend BubbleManager& GetBubbleManager();
 };
+
+__forceinline BubbleManager& GetBubbleManager() { return BubbleManager::_instance; }
+
+#define BUBBLE_MANAGER GetBubbleManager()
+#define bubman_registerBubbleModel(name) BUBBLE_MANAGER.registerBubbleModel((name))
+#define bubman_setDefaultModel(name) BUBBLE_MANAGER.setDefaultModel((name))
+#define bubman_getBubbleModel(name) BUBBLE_MANAGER.getBubbleModel((name))
+#define bubman_getDefaultModel() BUBBLE_MANAGER.getDefaultModel()
+#define bubman_hasBubbleModel(name) BUBBLE_MANAGER.hasBubbleModel((name))
+#define bubman_deleteBubbleModel(name) BUBBLE_MANAGER.deleteBubbleModel((name))
+#define bubman_clear() BUBBLE_MANAGER.clear()
 
 
 /*Color Bubble*/
