@@ -55,13 +55,13 @@ public:
 	std::string name() const;
 
 	inline color_mask_t addToMask(const color_mask_t& mask) const { return isNormalColor() ? mask | (0x1 << _id) : mask; }
-	inline color_mask_t removeToMask(const color_mask_t& mask) const { isNormalColor() ? mask & ~(0x1 << _id) : mask; }
+	inline color_mask_t removeToMask(const color_mask_t& mask) const { return isNormalColor() ? mask & ~(0x1 << _id) : mask; }
 	inline bool hasInMask(const color_mask_t& mask) const { return isNormalColor() && (mask & (0x1 << _id)) != 0; }
 };
 
-color_mask_t operator+ (const color_mask_t& mask, const BubbleColor& color) { return color.addToMask(mask); }
-color_mask_t operator- (const color_mask_t& mask, const BubbleColor& color) { return color.removeToMask(mask); }
-bool operator& (const color_mask_t& mask, const BubbleColor& color) { return color.hasInMask(mask); }
+color_mask_t operator+ (const color_mask_t& mask, const BubbleColor& color);
+color_mask_t operator- (const color_mask_t& mask, const BubbleColor& color);
+bool operator& (const color_mask_t& mask, const BubbleColor& color);
 
 
 

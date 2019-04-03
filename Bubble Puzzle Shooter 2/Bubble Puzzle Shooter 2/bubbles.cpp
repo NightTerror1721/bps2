@@ -38,6 +38,10 @@ std::string BubbleColor::name() const
 	}
 }
 
+color_mask_t operator+ (const color_mask_t& mask, const BubbleColor& color) { return color.addToMask(mask); }
+color_mask_t operator- (const color_mask_t& mask, const BubbleColor& color) { return color.removeToMask(mask); }
+bool operator& (const color_mask_t& mask, const BubbleColor& color) { return color.hasInMask(mask); }
+
 
 
 

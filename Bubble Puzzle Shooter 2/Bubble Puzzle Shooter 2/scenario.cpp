@@ -50,26 +50,83 @@ const BubbleModel* RandomBubbleTypeGenerator::generate(RNG& rand)
 void RandomBubbleTypeGenerator::setPercent(const BubbleModel* model, uint16 percent)
 {
 	percent = minmax_range(BUBGEN_MIN, BUBGEN_MAX, percent);
-	auto it = std::find(_percents.begin(), _percents.end(), model);
-	if (it == _percents.end())
-	{
-		if (!percent)
-			return;
-		_count += percent;
-		it->second = percent;
-	}
-	else
-	{
-		_count += percent - it->second;
-		if (!percent)
-			_percents.erase(it);
-		else it->second = percent;
-	}
+	for (auto it = _percents.begin(); it != _percents.end(); it++)
+		if (it->first == model)
+		{
+			_count += percent - it->second;
+			if (!percent)
+				_percents.erase(it);
+			else it->second = percent;
+		}
+
+	if (!percent)
+		return;
+
+	_count += percent;
+	_percents.push_back({ model, percent });
 }
 
 uint16 RandomBubbleTypeGenerator::getPercent(const BubbleModel* model) const
 {
-	auto it = std::find(_percents.begin(), _percents.end(), model);
-	return it == _percents.end() ? 0 : it->second;
+	for (auto it = _percents.cbegin(); it != _percents.cend(); it++)
+		if (it->first == model)
+			return it->second;
+	return 0;
+}
+
+
+
+void MetaScenarioGoals::setBubbleGoal(const bubble_code_t& code, uint32 amount)
+{
+	auto it = _bubgoals.find(code);
+	if (it == _bubgoals.end())
+	{
+		if (!amount)
+			return;
+		_bubgoals[code] = amount;
+	}
+	else
+	{
+		if (!amount)
+			_bubgoals.erase(it);
+		else it->second = amount;
+	}
+}
+
+uint32 MetaScenarioGoals::getBubbleGoal(const bubble_code_t& code)
+{
+	auto it = _bubgoals.find(code);
+	return it == _bubgoals.end() ? 0 : it->second;
+}
+
+void MetaScenarioGoals::forEachBubbleGoal(std::function<void(const bubble_code_t&, const uint32&, size_t)> action)
+{
+	size_t counter = 0;
+	for (const auto& e : _bubgoals)
+		action(e.first, e.second, counter++);
+}
+
+
+
+
+
+ScenarioProperties::ScenarioProperties()
+	: _bubbles(), _arrowBubbleTypes(), _boardBubbleTypes(), _goals()
+{
+
+}
+
+ScenarioProperties::~ScenarioProperties()
+{
+	_bubbles.clear();
+}
+
+void ScenarioProperties::setBubbleBoardCount(uint8 count)
+{
+	const column_t cols = getColumns();
+	_bubbles.clear();
+	_bubbles.reserve(count);
+	for (auto i = 0; i < count; i++)
+		_bubbles.emplace_back(BinaryBubbleBoard(cols));
 }
 

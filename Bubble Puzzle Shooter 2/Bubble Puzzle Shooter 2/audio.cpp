@@ -76,6 +76,7 @@ sf::Sound* AudioController::getSound(const std::string& tag)
 	auto it = _sounds.find(tag);
 	if (it != _sounds.cend())
 		return &(*it).second.second;
+	return nullptr;
 }
 
 void AudioController::playMusic(const std::string& tag)

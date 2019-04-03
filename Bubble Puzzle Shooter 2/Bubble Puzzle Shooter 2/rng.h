@@ -36,7 +36,7 @@ public:
 		return (_rand() % (__max - __min)) + __min;
 	}
 
-	inline float generateFloat() { _rand() / static_cast<float>(_rand.max()); }
+	inline float generateFloat() { return _rand() / static_cast<float>(_rand.max()); }
 
 #define CHECK(op, fnc_name) \
 inline bool fnc_name(const rand_value_t& value) { return (*this)() op value; } \

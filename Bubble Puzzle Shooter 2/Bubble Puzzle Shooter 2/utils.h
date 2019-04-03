@@ -58,7 +58,7 @@ inline std::istream& operator>> (std::istream& is, uuid& id) { return is >> id.c
 
 
 
-template<class __Ty, size_t __Rows, size_t __Cols>
+/*template<class __Ty, size_t __Rows, size_t __Cols>
 class Matrix2
 {
 private:
@@ -87,7 +87,7 @@ public:
 	__forceinline const MatrixRow& operator[](const size_t& row) const { return { row / __Cols }; }
 
 	__forceinline T& operator() (const size_t& idx) { return _data[idx]; }
-};
+};*/
 
 template<class __Ty>
 class DynMatrix2
@@ -104,18 +104,31 @@ public:
 	class MatrixRow
 	{
 	private:
+		DynMatrix2* const& __mat;
 		const size_t& _row;
 
 	public:
-		__forceinline MatrixRow(const size_t& row) : _row(row) {}
-		__forceinline T& operator[](const size_t& column) { return _data[_row + column]; }
-		__forceinline const T& operator[](const size_t& column) const { return _data[_row + column]; }
+		__forceinline MatrixRow(DynMatrix2* const& mat, const size_t& row) : __mat(mat), _row(row) {}
+		__forceinline T& operator[](const size_t& column) { return __mat->_data[_row + column]; }
+		//__forceinline const T& operator[](const size_t& column) const { return __mat->_data[_row + column]; }
+	};
+
+	class ConstMatrixRow
+	{
+	private:
+		const DynMatrix2* const& __mat;
+		const size_t& _row;
+
+	public:
+		__forceinline ConstMatrixRow(const DynMatrix2* const& mat, const size_t& row) : __mat(mat), _row(row) {}
+		//__forceinline T& operator[](const size_t& column) { return __mat->_data[_row + column]; }
+		__forceinline const T& operator[](const size_t& column) const { return __mat->_data[_row + column]; }
 	};
 
 public:
 	inline DynMatrix2(const size_t& rows, const size_t& columns) : _rows(rows), _cols(columns), _size(_rows * _cols), _data(_size) {}
 	DynMatrix2() = delete;
-	DynMatrix2(const DynMatrix2&) = delete;
+	//DynMatrix2(const DynMatrix2&) = delete;
 	~DynMatrix2()
 	{
 		_data.clear();
@@ -129,8 +142,8 @@ public:
 
 	inline void fill(const T& value) { _data.assign(_size, value); }
 
-	__forceinline MatrixRow&& operator[](const size_t& row) { return { row / __Cols }; }
-	__forceinline const MatrixRow& operator[](const size_t& row) const { return { row / __Cols }; }
+	__forceinline MatrixRow      operator[](const size_t& row) { return { this, row / _cols }; }
+	__forceinline ConstMatrixRow operator[](const size_t& row) const { return { this, row / _cols }; }
 
 	__forceinline T& operator() (const size_t& idx) { return _data[idx]; }
 
