@@ -58,7 +58,9 @@ int main(int argc, char** argv)
 	GameController gc("Bubble Puzzle Shooter");
 	gc.setVideoMode({ 640, 480 }, false);
 
-	run_py_file("data/textures/cache.py");
+	TextureManager tman;
+
+	run_py_file("data/textures/cache.py", "TextureManager"_a=&tman);
 
 	run_py_file("data/bubbles/cache.py");
 

@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <iostream>
 
-py::object run_py_file(const std::string& filename, py::object locals)
+py::object __run_py_file(const std::string& filename, py::object locals)
 {
 	try
 	{
@@ -17,7 +17,7 @@ py::object run_py_file(const std::string& filename, py::object locals)
 }
 
 PYBIND11_EMBEDDED_MODULE(__stdlib, m) {
-	m.def("runfile", &run_py_file, py::arg("filename"), py::arg("locals") = py::dict());
+	m.def("runfile", &__run_py_file, py::arg("filename"), py::arg("locals") = py::dict());
 	m.attr("current_dir") = std::filesystem::current_path().c_str();
 }
 

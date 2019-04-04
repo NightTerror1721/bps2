@@ -3,8 +3,6 @@
 
 #include <chrono>
 
-TextureManager TextureManager::_instance;
-
 TextureManager::TextureManager() :_tex() {}
 TextureManager::~TextureManager()
 {
@@ -38,6 +36,8 @@ void TextureManager::destroyTexture(const std::string& tag)
 Texture* TextureManager::getTexture(const std::string& tag) const { return _tex.at(tag); }
 Texture* TextureManager::operator[] (const std::string& tag) const { return _tex.at(tag); }
 
+bool TextureManager::hasTexture(const std::string& tag) const { return _tex.find(tag) != _tex.cend(); }
+
 void TextureManager::destroyAllTextures()
 {
 	if (!_tex.empty())
@@ -58,15 +58,19 @@ void TextureManager::destroyAllTextures()
 void bind(Texture* (&texture)) { Texture::bind(texture); }
 void unbind() { Texture::bind(NULL); }
 
-void __py__load_texture(const std::string& file, const std::string& tag, uint32 x, uint32 y, uint32 width, uint32 height)
+/*void __py__load_texture(const std::string& file, const std::string& tag, uint32 x, uint32 y, uint32 width, uint32 height)
 {
 	texman_loadTexture(file, tag, x, y, width, height);
-}
+}*/
 
 PYBIND11_EMBEDDED_MODULE(__texture_import, m) {
 	py::class_<TextureManager> tm(m, "TextureManager");
 
-	tm.def("loadTexture", &__py__load_texture);
+	tm.def("loadTexture", static_cast<Texture* (TextureManager::*)(const std::string&, const std::string&, uint32, uint32, uint32, uint32)>(&TextureManager::loadTexture));
+	tm.def("getTexture", &TextureManager::getTexture);
+	tm.def("hasTexture", &TextureManager::hasTexture);
+
+	//tm.def("loadTexture", &__py__load_texture);
 
 	//m.def("registerTexture")
 }

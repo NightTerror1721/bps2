@@ -5,8 +5,10 @@
 #include <pybind11/functional.h>
 
 namespace py = pybind11;
+using namespace py::literals;
 
-py::object run_py_file(const std::string& filename, py::object locals = py::object());
+py::object __run_py_file(const std::string& filename, py::object locals = py::object());
 
+#define run_py_file(filename, ...) __run_py_file((filename), py::dict(__VA_ARGS__))
 
 #endif //__PY_UTILS_CPP__
