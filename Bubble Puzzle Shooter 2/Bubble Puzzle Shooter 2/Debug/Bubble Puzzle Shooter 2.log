@@ -2,25 +2,9 @@
   bubbles.cpp
   engine.cpp
   main.cpp
-d:\bps2\bubble puzzle shooter 2\bubble puzzle shooter 2\py.h(17): error C2440: '<function-style-cast>': no se puede realizar la conversión de 'pybind11::arg_v' a 'pybind11::dict'
-  d:\bps2\bubble puzzle shooter 2\bubble puzzle shooter 2\py.h(17): note: Ningún constructor ha podido aceptar el tipo de origen o bien la resolución de sobrecarga del constructor era ambigua
-  d:\bps2\bubble puzzle shooter 2\bubble puzzle shooter 2\main.cpp(63): note: vea la referencia a la creación de instancias de plantilla de función 'pybind11::object run_py_file<pybind11::arg_v,void,pybind11::detail::unpacking_collector<pybind11::return_value_policy::automatic_reference>>(const std::string &,pybind11::arg_v &&)' que se está compilando
-  d:\visual studio 2017\comunity\vc\tools\msvc\14.14.26428\include\filesystem(2447): note: vea la referencia a la creación de instancias de plantilla clase de 'std::chrono::time_point<std::filesystem::_File_time_clock,std::filesystem::_File_time_clock::duration>' que se está compilando
-  d:\visual studio 2017\comunity\vc\tools\msvc\14.14.26428\include\type_traits(520): note: vea la referencia a la creación de instancias de plantilla clase de 'std::basic_string_view<wchar_t,std::char_traits<wchar_t>>' que se está compilando
-  d:\visual studio 2017\comunity\vc\tools\msvc\14.14.26428\include\type_traits(1358): note: vea la referencia a la creación de instancias de plantilla clase de 'std::is_convertible<const _StringViewIsh &,std::basic_string_view<wchar_t,std::char_traits<wchar_t>>>' que se está compilando
-          with
-          [
-              _StringViewIsh=const wchar_t *
-          ]
-  d:\visual studio 2017\comunity\vc\tools\msvc\14.14.26428\include\type_traits(1364): note: vea la referencia a la creación de instancias de plantilla clase de 'std::conjunction<std::is_convertible<const _StringViewIsh &,std::basic_string_view<wchar_t,std::char_traits<wchar_t>>>,std::negation<std::is_convertible<const _StringViewIsh &,const _Elem *>>>' que se está compilando
-          with
-          [
-              _StringViewIsh=const wchar_t *,
-              _Elem=wchar_t
-          ]
-  d:\visual studio 2017\comunity\vc\tools\msvc\14.14.26428\include\xstring(2105): note: vea la referencia a la plantilla de variables 'const bool conjunction_v<std::is_convertible<wchar_t const * const &,std::basic_string_view<wchar_t,std::char_traits<wchar_t> > >,std::negation<std::is_convertible<wchar_t const * const &,wchar_t const *> > >' que se está compilando
-  d:\visual studio 2017\comunity\vc\tools\msvc\14.14.26428\include\xstring(2264): note: vea la referencia a la creación de instancias de genérico clase de '_Is_string_view_ish<const wchar_t*>' que se está compilando
   assets.cpp
   py.cpp
   scenario.cpp
   Generando código...
+     Creando biblioteca D:\BPS2\Bubble Puzzle Shooter 2\Debug\Bubble Puzzle Shooter 2.lib y objeto D:\BPS2\Bubble Puzzle Shooter 2\Debug\Bubble Puzzle Shooter 2.exp
+  Bubble Puzzle Shooter 2.vcxproj -> D:\BPS2\Bubble Puzzle Shooter 2\Debug\Bubble Puzzle Shooter 2.exe

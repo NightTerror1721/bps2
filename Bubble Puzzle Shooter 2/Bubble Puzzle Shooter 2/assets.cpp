@@ -3,23 +3,26 @@
 
 #include <chrono>
 
+TextureManager* TextureManager::__py__tm = nullptr;
+
 TextureManager::TextureManager() :_tex() {}
 TextureManager::~TextureManager()
 {
 	destroyAllTextures();
 }
 
-Texture* TextureManager::loadTexture(const std::string& file, const std::string& tag, const sf::IntRect& area)
+bool TextureManager::loadTexture(const std::string& file, const std::string& tag, const sf::IntRect& area)
 {
 	if (_tex.find(tag) != _tex.end())
-		return nullptr;
+		return false;
+
 	Texture* tex = new Texture();
 	if (tex->loadFromFile(file, area))
 	{
 		_tex[tag] = tex;
-		return tex;
+		return true;
 	}
-	else return nullptr;
+	return false;
 }
 
 void TextureManager::destroyTexture(const std::string& tag)
@@ -63,17 +66,7 @@ void unbind() { Texture::bind(NULL); }
 	texman_loadTexture(file, tag, x, y, width, height);
 }*/
 
-PYBIND11_EMBEDDED_MODULE(__texture_import, m) {
-	py::class_<TextureManager> tm(m, "TextureManager");
-
-	tm.def("loadTexture", static_cast<Texture* (TextureManager::*)(const std::string&, const std::string&, uint32, uint32, uint32, uint32)>(&TextureManager::loadTexture));
-	tm.def("getTexture", &TextureManager::getTexture);
-	tm.def("hasTexture", &TextureManager::hasTexture);
-
-	//tm.def("loadTexture", &__py__load_texture);
-
-	//m.def("registerTexture")
-}
+TextureManager* __py__GetTextureManager() { return TextureManager::__py__tm; }
 
 
 

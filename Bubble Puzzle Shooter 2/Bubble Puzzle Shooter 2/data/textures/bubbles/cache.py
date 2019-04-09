@@ -1,5 +1,5 @@
-from data.py.textures import registerTexture
+from data.py.textures import loadTexture
 
 prefix = "bubbles."
 
-registerTexture("color.png", prefix + "color", 0, 0, 384, 256)
+loadTexture("color.png", prefix + "color", 0, 0, 384, 256)

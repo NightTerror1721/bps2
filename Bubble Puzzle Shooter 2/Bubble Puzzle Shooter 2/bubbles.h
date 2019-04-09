@@ -1,6 +1,5 @@
 #pragma once
 
-#include "engine.h"
 #include "assets.h"
 
 #include <string>
@@ -12,6 +11,7 @@
 #define BUBBLE_RADIUS 15
 
 class Bubble;
+class BubbleManager;
 
 using bubble_code_t = std::string;
 using color_mask_t = uint8;
@@ -85,9 +85,12 @@ struct BubbleModel
 
 
 
-class Bubble : public PhysicalEntity
+class Bubble : public Unique<>, public LocalAttrAllocator, public sf::Transformable
 {
 private:
+	BubbleModel *const _model;
+	const bubble_code_t _code;
+
 	const TextureManager* _texs;
 	Vec2f _allocScenario;
 	Vec2i _allocCell;
@@ -102,21 +105,24 @@ private:
 
 	bool _exploited;
 
-	bubble_code_t _code;
-
-protected:
-	Bubble(const std::string& tag, TextureManager* texs);
-
 public:
+	Bubble(BubbleModel *const model, const bubble_code_t& code, TextureManager* texs);
 	~Bubble();
 
-	inline void setCode(const bubble_code_t& code) { _code = code; }
 	inline bubble_code_t getCode() { return _code; }
+
+	inline bool isExploited() { return _exploited; }
+
+	inline Vec2f& speed() { return _speed; }
+	inline Vec2f& acceleration() { return _acceleration; }
+
+	inline uint8& resistence() { return _resistence; }
 
 	void draw(sf::RenderTarget *const (&g));
 	//void update(delta_t delta);
 
 
+	void explode() {}
 };
 
 
@@ -127,6 +133,8 @@ class BubbleManager : singleton
 private:
 	std::map<const std::string, BubbleModel> _models;
 	BubbleModel* _default;
+
+	std::map<bubble_code_t, BubbleModel*> _codes;
 
 	static BubbleManager _instance;
 
@@ -147,6 +155,12 @@ public:
 
 	void deleteBubbleModel(const std::string& name);
 
+	void linkCodeToModel(const bubble_code_t& code, const std::string& modelName);
+
+	inline bool hasCode(const bubble_code_t& code) { return _codes.find(code) != _codes.cend(); }
+
+	inline BubbleModel* getBubbleModelFromCode(const bubble_code_t& code) { return _codes[code]; }
+
 	void clear();
 
 	friend BubbleManager& GetBubbleManager();
@@ -161,7 +175,14 @@ __forceinline BubbleManager& GetBubbleManager() { return BubbleManager::_instanc
 #define bubman_getDefaultModel() BUBBLE_MANAGER.getDefaultModel()
 #define bubman_hasBubbleModel(name) BUBBLE_MANAGER.hasBubbleModel((name))
 #define bubman_deleteBubbleModel(name) BUBBLE_MANAGER.deleteBubbleModel((name))
+#define bubman_linkCodeToModel(code, modelName) BUBBLE_MANAGER.linkCodeToModel((code), (modelName))
+#define bubman_hasCode(code) BUBBLE_MANAGER.hasCode((code))
+#define bubman_getBubbleModelFromCode(code) BUBBLE_MANAGER.getBubbleModelFromCode((code))
 #define bubman_clear() BUBBLE_MANAGER.clear()
+
+Bubble* CreateNewBubble(const bubble_code_t& code, TextureManager* textureManager);
+void DestroyBubble(const Bubble* bub);
+
 
 
 /*Color Bubble*/

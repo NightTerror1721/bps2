@@ -55,17 +55,17 @@ int main(int argc, char** argv)
 
 	frame->addEntity(cb);*/
 
+
 	GameController gc("Bubble Puzzle Shooter");
 	gc.setVideoMode({ 640, 480 }, false);
 
 	TextureManager tman;
 
-	run_py_file("data/textures/cache.py", "TextureManager"_a=&tman);
+	tman.cachePyTextures("data/textures/cache.py");
 
 	run_py_file("data/bubbles/cache.py");
 
 	run_py_file("data/audio/cache.py");
-
 
 	//gc.addEntity(frame);
 	gc.start();

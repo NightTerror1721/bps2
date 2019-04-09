@@ -7,8 +7,7 @@ current_path = os.path.join("data", "bubbles")
 
 def registerBubbleModel(fn):
     print("Import bubble model: %s" % fn)
-    locals = {}
-    runfile(fn, locals)
+    runfile(fn)
 
 forEachFile(current_path, lambda fn: os.path.isfile(fn) and fn.endswith(".py") and not fn.endswith("cache.py"), registerBubbleModel)
 

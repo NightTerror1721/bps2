@@ -13,14 +13,16 @@ using native_sprite = sf::Sprite;
 class TextureManager
 {
 private:
+	static TextureManager* __py__tm;
+
 	std::map<std::string, Texture*> _tex;
 
 public:
 	TextureManager();
 	~TextureManager();
 
-	Texture* loadTexture(const std::string& file, const std::string& tag, const sf::IntRect& area);
-	inline Texture* loadTexture(const std::string& file, const std::string& tag, uint32 x, uint32 y, uint32 width, uint32 height)
+	bool loadTexture(const std::string& file, const std::string& tag, const sf::IntRect& area);
+	inline bool loadTexture(const std::string& file, const std::string& tag, uint32 x, uint32 y, uint32 width, uint32 height)
 	{
 		return loadTexture(file, tag, sf::IntRect(x, y, width, height));
 	}
@@ -34,8 +36,19 @@ public:
 
 	void destroyAllTextures();
 
+	inline void cachePyTextures(const std::string& py_file)
+	{
+		__py__tm = this;
+		run_py_file(py_file);
+		__py__tm = nullptr;
+	}
+
+	friend TextureManager* __py__GetTextureManager();
+
 	//friend TextureManager& GetTextureManager();
 };
+
+TextureManager* __py__GetTextureManager();
 
 //__forceinline TextureManager& GetTextureManager() { return TextureManager::_instance; }
 

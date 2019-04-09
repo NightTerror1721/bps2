@@ -47,10 +47,22 @@ bool operator& (const color_mask_t& mask, const BubbleColor& color) { return col
 
 
 
-Bubble::Bubble(const std::string& tag, TextureManager* texs)
-	: PhysicalEntity(tag), _exploited(false), _allocScenario(), _allocCell(),
-	  _floatingCheckPhase(false), _speed(), _acceleration(), _texs(texs),
-      _bcolor(BubbleColor::Colorless), _resistence(0), _sprite() {}
+Bubble::Bubble(BubbleModel *const model, const bubble_code_t& code, TextureManager* texs) :
+	LocalAttrAllocator(),
+	Transformable(),
+	_model(model),
+	_code(code),
+	_exploited(false),
+	_allocScenario(),
+	_allocCell(),
+	_floatingCheckPhase(false),
+	_speed(),
+	_acceleration(),
+	_texs(texs),
+    _bcolor(BubbleColor::Colorless),
+	_resistence(0),
+	_sprite()
+{}
 
 Bubble::~Bubble() {}
 
@@ -87,45 +99,42 @@ void BubbleManager::deleteBubbleModel(const std::string& name)
 {
 	auto it = _models.find(name);
 	if (it != _models.end())
+	{
+		BubbleModel* model = &(it->second);
+
+		auto cit = _codes.begin();
+		while (cit != _codes.end())
+		{
+			if (cit->second == model)
+				_codes.erase(cit++);
+			else cit++;
+		}
+
 		_models.erase(it);
+	}
+}
+
+void BubbleManager::linkCodeToModel(const bubble_code_t& code, const std::string& modelName)
+{
+	auto it = _models.find(modelName);
+	if (it != _models.end())
+		_codes[code] = &(it->second);
 }
 
 void BubbleManager::clear() { _models.clear(); }
 
 
+Bubble* CreateNewBubble(const bubble_code_t& code, TextureManager* textureManager)
+{
+	BubbleModel* model = bubman_hasCode(code)
+		? bubman_getBubbleModelFromCode(code)
+		: bubman_getDefaultModel();
 
+	return new Bubble{ model, code, textureManager };
+}
 
-
-PYBIND11_EMBEDDED_MODULE(__bubbles, m) {
-
-	py::class_<BubbleModel> bm(m, "BubbleModel");
-
-	bm.def_readwrite("onCollide", &BubbleModel::onCollide);
-	bm.def_readwrite("onExplode", &BubbleModel::onExplode);
-	bm.def_readwrite("onInserted", &BubbleModel::onInserted);
-	bm.def_readwrite("onNeighborExplode", &BubbleModel::onNeighborExplode);
-	bm.def_readwrite("onNeighborInserted", &BubbleModel::onNeighborInserted);
-	bm.def_readwrite("init", &BubbleModel::init);
-
-	m.def("registerBubbleModel", [](const std::string& name) -> BubbleModel* {
-		return bubman_registerBubbleModel(name);
-	});
-
-	m.def("isRegisteredBubbleModel", [](const std::string& name) -> bool {
-		return bubman_hasBubbleModel(name);
-	});
-
-	m.def("setDefaultBubbleModel", [](const std::string& name) {
-		bubman_setDefaultModel(name);
-	});
-
-	m.def("getBubbleModel", [](const std::string& name) -> BubbleModel* {
-		return bubman_getBubbleModel(name);
-	});
-
-	m.def("getDefaultBubbleModel", []() -> BubbleModel* {
-		return bubman_getDefaultModel();
-	});
-
+void DestroyBubble(const Bubble* bub)
+{
+	delete bub;
 }
 
