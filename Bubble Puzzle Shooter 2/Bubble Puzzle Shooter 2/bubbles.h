@@ -13,7 +13,6 @@
 class Bubble;
 class BubbleManager;
 
-using bubble_code_t = std::string;
 using color_mask_t = uint8;
 
 class BubbleColor
@@ -23,8 +22,11 @@ private:
 
 private:
 	explicit inline BubbleColor(const uint8 id) : _id(id) {}
+	
 
 public:
+	inline BubbleColor() : BubbleColor(BubbleColor::Colorless._id) {}
+
 	static const BubbleColor Red;
 	static const BubbleColor Orange;
 	static const BubbleColor Yellow;
@@ -35,6 +37,10 @@ public:
 	static const BubbleColor Black;
 	static const BubbleColor Multicolor;
 	static const BubbleColor Colorless;
+
+	static std::vector<BubbleColor> normalColors();
+
+	bool match(const BubbleColor& other) const;
 
 	inline bool operator== (const BubbleColor& bc) const { return _id == bc._id; }
 	inline bool operator!= (const BubbleColor& bc) const { return _id != bc._id; }
@@ -69,13 +75,15 @@ struct BubbleModel
 {
 	std::string name;
 
+	bool requireColor;
+
 	std::function<void(Bubble*, Bubble*)> onCollide;
 	std::function<void(Bubble*)> onInserted;
 	std::function<void(Bubble*)> onExplode;
 	std::function<void(Bubble*, Bubble*)> onNeighborInserted;
 	std::function<void(Bubble*, Bubble*)> onNeighborExplode;
 
-	std::function<void(Bubble*)> init;
+	std::function<void(Bubble*, uint8, bool)> init;
 };
 
 
@@ -83,13 +91,12 @@ struct BubbleModel
 
 
 
-
+struct BubbleIdentifier;
 
 class Bubble : public Unique<>, public LocalAttrAllocator, public sf::Transformable
 {
 private:
 	BubbleModel *const _model;
-	const bubble_code_t _code;
 
 	const TextureManager* _texs;
 	Vec2f _allocScenario;
@@ -105,11 +112,10 @@ private:
 
 	bool _exploited;
 
-public:
-	Bubble(BubbleModel *const model, const bubble_code_t& code, TextureManager* texs);
-	~Bubble();
+	Bubble(BubbleModel *const modelName, TextureManager* texs);
 
-	inline bubble_code_t getCode() { return _code; }
+public:
+	~Bubble();
 
 	inline bool isExploited() { return _exploited; }
 
@@ -118,11 +124,41 @@ public:
 
 	inline uint8& resistence() { return _resistence; }
 
+
+	BubbleIdentifier getIdentifier() const;
+
 	void draw(sf::RenderTarget *const (&g));
 	//void update(delta_t delta);
 
 
 	void explode() {}
+
+	friend Bubble* CreateNewBubble(BubbleModel* model, const BubbleColor& color, TextureManager* textureManager, bool editorMode);
+};
+
+
+
+struct BubbleIdentifier
+{
+	std::string model;
+	BubbleColor color;
+
+	static BubbleIdentifier invalid();
+
+	bool operator== (const BubbleIdentifier& bi2) const;
+	bool operator!= (const BubbleIdentifier& bi2) const;
+	bool operator> (const BubbleIdentifier& bi2) const;
+	bool operator>= (const BubbleIdentifier& bi2) const;
+	bool operator< (const BubbleIdentifier& bi2) const;
+	bool operator<= (const BubbleIdentifier& bi2) const;
+	bool operator! () const;
+
+	operator bool() const;
+
+	bool isValid() const;
+	void invalidate();
+
+	Bubble* createBubble(TextureManager* textureManager, bool editorMode) const;
 };
 
 
@@ -131,10 +167,8 @@ public:
 class BubbleManager : singleton
 {
 private:
-	std::map<const std::string, BubbleModel> _models;
+	std::map<std::string, BubbleModel> _models;
 	BubbleModel* _default;
-
-	std::map<bubble_code_t, BubbleModel*> _codes;
 
 	static BubbleManager _instance;
 
@@ -155,12 +189,6 @@ public:
 
 	void deleteBubbleModel(const std::string& name);
 
-	void linkCodeToModel(const bubble_code_t& code, const std::string& modelName);
-
-	inline bool hasCode(const bubble_code_t& code) { return _codes.find(code) != _codes.cend(); }
-
-	inline BubbleModel* getBubbleModelFromCode(const bubble_code_t& code) { return _codes[code]; }
-
 	void clear();
 
 	friend BubbleManager& GetBubbleManager();
@@ -175,12 +203,10 @@ __forceinline BubbleManager& GetBubbleManager() { return BubbleManager::_instanc
 #define bubman_getDefaultModel() BUBBLE_MANAGER.getDefaultModel()
 #define bubman_hasBubbleModel(name) BUBBLE_MANAGER.hasBubbleModel((name))
 #define bubman_deleteBubbleModel(name) BUBBLE_MANAGER.deleteBubbleModel((name))
-#define bubman_linkCodeToModel(code, modelName) BUBBLE_MANAGER.linkCodeToModel((code), (modelName))
-#define bubman_hasCode(code) BUBBLE_MANAGER.hasCode((code))
-#define bubman_getBubbleModelFromCode(code) BUBBLE_MANAGER.getBubbleModelFromCode((code))
 #define bubman_clear() BUBBLE_MANAGER.clear()
 
-Bubble* CreateNewBubble(const bubble_code_t& code, TextureManager* textureManager);
+Bubble* CreateNewBubble(const std::string& model, const BubbleColor& color, TextureManager* textureManager, bool editorMode);
+Bubble* CreateNewBubble(BubbleModel* model, const BubbleColor& color, TextureManager* textureManager, bool editorMode);
 void DestroyBubble(const Bubble* bub);
 
 

@@ -68,8 +68,8 @@ public:
 
 	inline uuid getUniqueId() const { return _id; }
 
-	inline operator== (const Unique& other) const { return _id == other._id; }
-	inline operator!= (const Unique& other) const { return _id != other._id; }
+	inline bool operator== (const Unique& other) const { return _id == other._id; }
+	inline bool operator!= (const Unique& other) const { return _id != other._id; }
 };
 
 template<class __Ty>
@@ -180,9 +180,9 @@ private:
 class LocalAttrAllocator
 {
 private:
-	std::unordered_map<const std::string, int32> _ints;
-	std::unordered_map<const std::string, float> _flts;
-	std::unordered_map<const std::string, std::string> _strs;
+	std::unordered_map<std::string, int32> _ints;
+	std::unordered_map<std::string, float> _flts;
+	std::unordered_map<std::string, std::string> _strs;
 
 public:
 
@@ -202,7 +202,7 @@ public:
 
 private:
 	template<class __Ty>
-	using map_t = std::unordered_map<const std::string, __Ty>;
+	using map_t = std::unordered_map<std::string, __Ty>;
 
 	template<class __Ty>
 	__forceinline void setLocal(map_t<__Ty>& map, const std::string& name, const __Ty& value) { map[name] = value; }
@@ -241,7 +241,7 @@ private:
 #define RAD_2_DEG(x) ((x) * 180.f / M_PI)
 #define DEG_2_RAD(x) ((x) * M_PI / 180.f)
 
-class degrees_t;
+/*class degrees_t;
 class radians_t;
 
 class degrees_t
@@ -259,7 +259,7 @@ public:
 
 	operator float() const;
 
-	inline radians_t radians() const { return _value; }
+	radians_t radians() const;
 
 	friend class radians_t;
 
@@ -465,4 +465,4 @@ inline degrees_t operator"" _deg(long double value) { return value; }
 inline degrees_t operator"" _deg(unsigned long long int value) { return value; }
 
 inline radians_t operator"" _rad(long double value) { return value; }
-inline radians_t operator"" _rad(unsigned long long int value) { return value; }
+inline radians_t operator"" _rad(unsigned long long int value) { return value; }*/

@@ -81,7 +81,7 @@ void LocalAttrAllocator::deleteAllLocals()
 
 
 
-degrees_t::degrees_t(const radians_t& rad) : _value(RAD_2_DEG(rad)) {}
+/*degrees_t::degrees_t(const radians_t& rad) : _value(RAD_2_DEG(rad)) {}
 
 degrees_t& degrees_t::operator= (const float& v2)
 {
@@ -153,4 +153,4 @@ radians_t& radians_t::operator*= (const float& v2) { return *this = *this * v2; 
 
 radians_t& radians_t::operator/= (const radians_t& v2) { return *this = *this / v2; }
 radians_t& radians_t::operator/= (const degrees_t& v2) { return *this = *this / v2; }
-radians_t& radians_t::operator/= (const float& v2) { return *this = *this / v2; }
+radians_t& radians_t::operator/= (const float& v2) { return *this = *this / v2; }*/

@@ -1,10 +1,2 @@
-﻿  audio.cpp
-  bubbles.cpp
-  engine.cpp
-  main.cpp
-  assets.cpp
-  py.cpp
-  scenario.cpp
-  Generando código...
-     Creando biblioteca D:\BPS2\Bubble Puzzle Shooter 2\Debug\Bubble Puzzle Shooter 2.lib y objeto D:\BPS2\Bubble Puzzle Shooter 2\Debug\Bubble Puzzle Shooter 2.exp
+﻿  scenario.cpp
   Bubble Puzzle Shooter 2.vcxproj -> D:\BPS2\Bubble Puzzle Shooter 2\Debug\Bubble Puzzle Shooter 2.exe

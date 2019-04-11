@@ -5,6 +5,7 @@
 #include "bubbles.h"
 
 #include <vector>
+#include <deque>
 #include <fstream>
 
 enum class PlayerId { First, Second, Single = First };
@@ -26,11 +27,18 @@ enum class HideBubblesContainerType : uint8 {
 	Endless_Random_Discrete = Endless_Random_Continuous | Discrete
 };
 
+inline uint8 operator& (const HideBubblesContainerType& t1, const HideBubblesContainerType& t2) { return static_cast<uint8>(t1) & static_cast<uint8>(t2); }
+
 inline bool IsFinalState(const ScenarioState& state) { return state == ScenarioState::Won || state == ScenarioState::Lost; }
 __forceinline bool IsRunningState(const ScenarioState& state) { return !IsFinalState(state); }
 inline bool IsActiveRunningState(const ScenarioState& state) { return state == ScenarioState::InGame; }
 inline bool IsPasiveRunningState(const ScenarioState& state) { return state == ScenarioState::Winning || state == ScenarioState::Losing || state == ScenarioState::Paused; }
 inline bool IsFinalizingState(const ScenarioState& state) { return state == ScenarioState::Winning || state == ScenarioState::Losing; }
+
+
+inline bool IsDiscrete(HideBubblesContainerType type) { return (type & HideBubblesContainerType::Discrete) == static_cast<uint8>(HideBubblesContainerType::Discrete); }
+inline bool IsRandom(HideBubblesContainerType type) { return (type & HideBubblesContainerType::Random_Continuous) == static_cast<uint8>(HideBubblesContainerType::Random_Continuous); }
+inline bool IsEndless(HideBubblesContainerType type) { return (type & HideBubblesContainerType::Endless_Continuous) == static_cast<uint8>(HideBubblesContainerType::Endless_Continuous); }
 
 
 constexpr uint32 col_cast(const column_t& col) { return static_cast<uint32>(col); }
@@ -59,7 +67,7 @@ constexpr bool check_paired_column(_Ty value) { return (value % 2) != 0 ? value 
 class BinaryBubbleBoard
 {
 private:
-	DynMatrix2<bubble_code_t> _board;
+	DynMatrix2<BubbleIdentifier> _board;
 	const uint32 _columns;
 
 public:
@@ -69,9 +77,13 @@ public:
 	inline uint32 getColumns() const { return _columns; }
 	__forceinline uint32 getColumns(const uint32& row) const { return check_paired_column(_columns); }
 
-	void insertBubble(size_t row, size_t column, const bubble_code_t& code);
+	void insertBubble(size_t row, size_t column, const BubbleIdentifier& bid);
+	inline void insertBubble(size_t row, size_t column, const std::string& model, const BubbleColor& color)
+	{
+		insertBubble(row, column, {model, color});
+	}
 
-	bubble_code_t getBubble(const size_t& row, const size_t& column) const;
+	BubbleIdentifier getBubble(const size_t& row, const size_t& column) const;
 };
 
 
@@ -80,21 +92,21 @@ public:
 class RandomBubbleTypeGenerator
 {
 private:
-	std::vector<std::pair<const BubbleModel*, uint16>> _percents;
+	std::vector<std::pair<std::string, uint16>> _percents;
 	uint32 _count;
 
 public:
 	RandomBubbleTypeGenerator() : _percents(), _count(0) {}
 
-	const BubbleModel* generate(RNG& rand);
-	void setPercent(const BubbleModel* model, uint16 percent);
-	uint16 getPercent(const BubbleModel* model) const;
+	std::string generate(RNG& rand);
+	void setPercent(const std::string& modelName, uint16 percent);
+	uint16 getPercent(const std::string& modelName) const;
 };
 
 class MetaScenarioGoals
 {
 private:
-	std::map<bubble_code_t, uint32> _bubgoals;
+	std::map<BubbleIdentifier, uint32> _bubgoals;
 	bool _boardEmpty;
 	uint32 _boardCount;
 
@@ -109,10 +121,11 @@ public:
 
 	inline size_t getBubbleGoalsCount() { return _bubgoals.size(); }
 
-	void setBubbleGoal(const bubble_code_t& code, uint32 amount);
-	uint32 getBubbleGoal(const bubble_code_t& code);
+	void setBubbleGoal(const BubbleIdentifier& bid, uint32 amount);
+	uint32 getBubbleGoal(const BubbleIdentifier& bid);
+	inline uint32 getBubbleGoal(const std::string& model, const BubbleColor& color) { return getBubbleGoal({ model, color }); }
 
-	void forEachBubbleGoal(std::function<void(const bubble_code_t&, const uint32&, size_t)> action);
+	void forEachBubbleGoal(std::function<void(const BubbleIdentifier&, const uint32&, size_t)> action);
 };
 
 
@@ -207,4 +220,161 @@ public:
 
 };
 
+
+class Scenario;
+class BubbleBoard;
+
+class BubbleColorRandomizer
+{
+private:
+	RNG _rand;
+	color_mask_t _colors;
+	std::vector<BubbleColor> _map;
+
+public:
+	explicit BubbleColorRandomizer(const RNG& rand);
+
+	void setAvailableColors(const color_mask_t& colors);
+
+	void setColorEnabled(const BubbleColor& color, bool enabled);
+
+	BubbleColor generateRandom();
+	BubbleColor generateRandom(BubbleBoard* board);
+
+	inline bool isColorEnabled(const BubbleColor& color) const { return _colors & color; }
+
+private:
+	void updateMap();
+};
+
+
+class BubbleGenerator
+{
+private:
+	Scenario *const _sc;
+	BubbleColorRandomizer* _colors;
+	RNG _arrowRand;
+	RNG _boardRand;
+	RandomBubbleTypeGenerator* _arrowTypes;
+	RandomBubbleTypeGenerator* _boardTypes;
+	BubbleColor _lastColor;
+
+public:
+	explicit BubbleGenerator(
+		Scenario *const scenario,
+		BubbleColorRandomizer* const colors,
+		RandomBubbleTypeGenerator* const arrowTypes,
+		RandomBubbleTypeGenerator* const boardTypes,
+		seed_t seed);
+
+	inline Bubble* generate(TextureManager* textureManager, bool isArrow) { return generate(typegen(isArrow)->generate(rand(isArrow)), textureManager, isArrow); }
+
+	inline RandomBubbleTypeGenerator* arrowTypeGenerator() { return _arrowTypes; }
+	inline RandomBubbleTypeGenerator* boardTypeGenerator() { return _boardTypes; }
+
+	Bubble* generateFromIdentifier(const BubbleIdentifier& bid, TextureManager* textureManager);
+
+private:
+	__forceinline RandomBubbleTypeGenerator* typegen(bool isArrow) { return isArrow ? _arrowTypes : _boardTypes; }
+	__forceinline RNG& rand(bool isArrow) { return isArrow ? _arrowRand : _boardRand; }
+
+	Bubble* generate(const std::string& modelName, TextureManager* textureManager, bool isArrow);
+	BubbleColor selectColor(bool isArrow);
+	
+};
+
+
+
+
+
+
+class HideBubbleContainer
+{
+private:
+	class HiddenRow
+	{
+	private:
+		HideBubbleContainer* const __parent;
+		std::vector<BubbleIdentifier> _ids;
+		int8 _count;
+		uint8 _boardId;
+		uint8 _row;
+
+	public:
+		inline HiddenRow(HideBubbleContainer* const parent, std::vector<BubbleIdentifier> ids, uint8 boardId, uint8 row) : __parent(parent), _ids(ids), _boardId(boardId), _row(row) {}
+		inline HiddenRow(HideBubbleContainer* const parent, uint8 boardId, uint8 row) : HiddenRow(parent, {}, boardId, row) {}
+
+		inline bool empty() { return _ids.empty(); };
+		inline std::vector<BubbleIdentifier> getIdentifiers() { return _ids; }
+		uint8 count();
+
+		std::vector<Bubble*> generateRow(TextureManager* textureManager);
+	};
+
+	class HiddenBoard
+	{
+	private:
+		HideBubbleContainer *const __parent;
+		std::deque<HiddenRow> _rows;
+		uint32 _count;
+		bool _modified;
+
+	public:
+		inline HiddenBoard(HideBubbleContainer *const parent) : __parent(parent), _rows(), _count(0), _modified(true) {}
+		HiddenBoard(const HiddenBoard& base);
+
+		inline bool empty() const { return _rows.empty(); }
+		inline HiddenBoard* copyPtr() { return new HiddenBoard(*this); }
+
+		void createRow(const std::vector<BubbleIdentifier>& ids, uint8 row, uint8 boardId);
+		inline void createEmptyRow(uint8 row, uint8 boardId) { createRow({}, row, boardId); }
+
+		void trimTop();
+
+		std::vector<Bubble*> generateRow(TextureManager* textureManager);
+
+		std::vector<std::vector<Bubble*>> generateAllRows(TextureManager* textureManager);
+
+		uint32 count();
+	};
+
+
+
+private:
+	using bubble_row_t = std::vector<Bubble*>;
+	using bubble_board_t = std::vector<bubble_row_t>;
+
+	const HideBubblesContainerType _type;
+	TextureManager* const _tm;
+	uint8 _columns;
+	BubbleGenerator* const _bgen;
+	RNG _rand;
+	uint8 _maxBoards;
+	std::deque<HiddenBoard*> _boards;
+	HiddenBoard* _current;
+
+public:
+	HideBubbleContainer(ScenarioProperties *const props, column_t columns, BubbleGenerator *const bgen, seed_t seed, TextureManager* const textureManager);
+	~HideBubbleContainer();
+
+	void fill(const std::vector<BinaryBubbleBoard>& bin);
+
+	bubble_board_t generate();
+
+	bubble_board_t generateBoard();
+
+	bubble_row_t generateRow();
+
+	uint32 getBubbleCount();
+
+
+	inline bool isDiscrete() const { return IsDiscrete(_type); }
+	inline bool empty() const { return _boards.empty() && (!_current || _current->empty()); }
+
+private:
+	void checkNext();
+
+	void createHiddenRow(HiddenBoard* board, const BinaryBubbleBoard& bbb, uint8 row, uint8 boardId);
+
+};
 
