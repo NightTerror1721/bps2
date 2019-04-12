@@ -1,5 +1,7 @@
 #include "bubbles.h"
 
+#include "scenario.h"
+
 #include <SFML/Graphics.hpp>
 
 #define COLORID_RED 0
@@ -90,21 +92,97 @@ bool operator& (const color_mask_t& mask, const BubbleColor& color) { return col
 
 
 
+BouncingBounds::BouncingBounds(Bubble* const bubble) :
+	_bubble(bubble),
+	_bounds(),
+	_top(false),
+	_bottom(false)
+{}
+
+BounceEdge BouncingBounds::checkBounce()
+{
+	Vec2f pos = _bubble->getPosition();
+	Vec2f speed = _bubble->getSpeed();
+	if (_top && pos.y - BUBBLE_RADIUS <= _bounds.top)
+	{
+		pos.y = static_cast<float>(_bounds.top + BUBBLE_RADIUS);
+		speed.y *= -1;
+		_bubble->setPosition(pos);
+		_bubble->setSpeed(speed);
+		return BounceEdge::Top;
+	}
+	if (_bottom && pos.y + BUBBLE_RADIUS >= _bounds.top + _bounds.height)
+	{
+		pos.y = static_cast<float>(_bounds.top + _bounds.height - BUBBLE_RADIUS);
+		speed.y *= -1;
+		_bubble->setPosition(pos);
+		_bubble->setSpeed(speed);
+		return BounceEdge::Bottom;
+	}
+	if (pos.x - BUBBLE_RADIUS <= _bounds.left)
+	{
+		pos.x = static_cast<float>(_bounds.left + BUBBLE_RADIUS);
+		speed.x *= -1;
+		_bubble->setPosition(pos);
+		_bubble->setSpeed(speed);
+		return BounceEdge::Left;
+	}
+	if (pos.x + BUBBLE_RADIUS >= _bounds.left + _bounds.width)
+	{
+		pos.x = static_cast<float>(_bounds.left + _bounds.width - BUBBLE_RADIUS);
+		speed.x *= -1;
+		_bubble->setPosition(pos);
+		_bubble->setSpeed(speed);
+		return BounceEdge::Right;
+	}
+	return BounceEdge::None;
+}
+
+
+
+
+
+
+BoardCell::BoardCell(BoardRow* const& parent, int32 row, uint8 column) :
+	_parent(parent),
+	_row(row),
+	_column(column)
+{}
+
+BoardRow* BoardCell::getBoardRow() const { return _parent; }
+BubbleBoard* BoardCell::getBoard() const { return _parent->_parent; }
+Scenario* BoardCell::getScenario() const { return _parent->_parent->_scenario; }
+uint8 BoardCell::getLittle() const { return _parent->_little; }
+int32 BoardCell::getRow() const { return _row; }
+uint8 BoardCell::getColumn() const { return _column; }
+bool BoardCell::isInBottomRow() const { return _row >= VISIBLE_ROWS; }
+
+bool BoardCell::operator! () const { return !_parent; }
+
+
+
+
+
+
+
 
 Bubble::Bubble(BubbleModel *const model, TextureManager* texs) :
 	LocalAttrAllocator(),
 	Transformable(),
 	_model(model),
 	_exploited(false),
-	_allocScenario(),
+	_allocScenario(nullptr),
+	_allocPosition(),
 	_allocCell(),
 	_floatingCheckPhase(false),
 	_speed(),
 	_acceleration(),
 	_texs(texs),
     _bcolor(BubbleColor::Colorless),
-	_resistence(0),
-	_sprite()
+	_sprite(),
+	_bounce(this),
+	_cell(),
+	_arrowFireSound(nullptr)
 {}
 
 Bubble::~Bubble() {}
@@ -113,6 +191,12 @@ BubbleIdentifier Bubble::getIdentifier() const
 {
 	return { _model->name, _bcolor };
 }
+
+void Bubble::setSpeed(const Vec2f& speed) { _speed = speed; }
+const Vec2f& Bubble::getSpeed() const { return _speed; }
+
+void Bubble::setAcceleration(const Vec2f& acceleration) { _acceleration = acceleration; }
+const Vec2f& Bubble::getAcceleration() const { return _acceleration; }
 
 void Bubble::draw(sf::RenderTarget *const (&g))
 {

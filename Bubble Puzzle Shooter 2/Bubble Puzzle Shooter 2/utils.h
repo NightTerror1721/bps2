@@ -28,6 +28,14 @@ using delta_t = float;
 using std::byte;
 
 
+/* Vector2 utilities */
+template<class __Ty>
+bool operator! (sf::Vector2<__Ty> v) { return !(v.x) && !(v.y); }
+
+template<class __Ty>
+inline bool IsZero(sf::Vector2<__Ty> v) { return !v; }
+
+
 /* UTILS */
 class uuid
 {
@@ -226,6 +234,7 @@ private:
 		return false;
 	}
 };
+
 
 
 

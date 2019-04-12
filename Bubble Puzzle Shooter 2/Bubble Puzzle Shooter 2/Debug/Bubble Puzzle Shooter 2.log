@@ -1,2 +1,21 @@
-﻿  scenario.cpp
-  Bubble Puzzle Shooter 2.vcxproj -> D:\BPS2\Bubble Puzzle Shooter 2\Debug\Bubble Puzzle Shooter 2.exe
+﻿  bubbles.cpp
+  main.cpp
+  py.cpp
+  scenario.cpp
+  Generando código...
+  LINK : no se encontr¾ D:\BPS2\Bubble Puzzle Shooter 2\Debug\Bubble Puzzle Shooter 2.exe o no lo gener¾ el ·ltimo vÝnculo incremental; ejecutando vÝnculo completo
+scenario.obj : error LNK2005: ya se defini¾ "class RNG & __cdecl operator>>(class RNG &,unsigned int &)" (??5@YAAAVRNG@@AAV0@AAI@Z) en bubbles.obj
+scenario.obj : error LNK2005: ya se defini¾ "class RNG & __cdecl operator>>(class RNG &,float &)" (??5@YAAAVRNG@@AAV0@AAM@Z) en bubbles.obj
+scenario.obj : error LNK2005: ya se defini¾ "bool __cdecl operator==(class RNG &,unsigned int const &)" (??8@YA_NAAVRNG@@ABI@Z) en bubbles.obj
+scenario.obj : error LNK2005: ya se defini¾ "bool __cdecl operator==(class RNG &,float const &)" (??8@YA_NAAVRNG@@ABM@Z) en bubbles.obj
+scenario.obj : error LNK2005: ya se defini¾ "bool __cdecl operator!=(class RNG &,unsigned int const &)" (??9@YA_NAAVRNG@@ABI@Z) en bubbles.obj
+scenario.obj : error LNK2005: ya se defini¾ "bool __cdecl operator!=(class RNG &,float const &)" (??9@YA_NAAVRNG@@ABM@Z) en bubbles.obj
+scenario.obj : error LNK2005: ya se defini¾ "bool __cdecl operator<(class RNG &,unsigned int const &)" (??M@YA_NAAVRNG@@ABI@Z) en bubbles.obj
+scenario.obj : error LNK2005: ya se defini¾ "bool __cdecl operator<(class RNG &,float const &)" (??M@YA_NAAVRNG@@ABM@Z) en bubbles.obj
+scenario.obj : error LNK2005: ya se defini¾ "bool __cdecl operator>(class RNG &,unsigned int const &)" (??O@YA_NAAVRNG@@ABI@Z) en bubbles.obj
+scenario.obj : error LNK2005: ya se defini¾ "bool __cdecl operator>(class RNG &,float const &)" (??O@YA_NAAVRNG@@ABM@Z) en bubbles.obj
+     Creando biblioteca D:\BPS2\Bubble Puzzle Shooter 2\Debug\Bubble Puzzle Shooter 2.lib y objeto D:\BPS2\Bubble Puzzle Shooter 2\Debug\Bubble Puzzle Shooter 2.exp
+scenario.obj : error LNK2019: sÝmbolo externo "public: void __thiscall Bubble::translate(class sf::Vector2<float> const &)" (?translate@Bubble@@QAEXABV?$Vector2@M@sf@@@Z) sin resolver al que se hace referencia en la funci¾n "public: void __thiscall Bubble::translate(float,float)" (?translate@Bubble@@QAEXMM@Z)
+scenario.obj : error LNK2019: sÝmbolo externo "public: void __thiscall Bubble::setBoardCell(class BoardCell const &)" (?setBoardCell@Bubble@@QAEXABVBoardCell@@@Z) sin resolver al que se hace referencia en la funci¾n "private: void __thiscall BoardRow::setBubble(class BoardCell const &,class Bubble *)" (?setBubble@BoardRow@@AAEXABVBoardCell@@PAVBubble@@@Z)
+scenario.obj : error LNK2019: sÝmbolo externo "public: void __thiscall Bubble::removeBoardCell(void)" (?removeBoardCell@Bubble@@QAEXXZ) sin resolver al que se hace referencia en la funci¾n "private: unsigned int __thiscall BoardRow::destroy(void)" (?destroy@BoardRow@@AAEIXZ)
+D:\BPS2\Bubble Puzzle Shooter 2\Debug\Bubble Puzzle Shooter 2.exe : fatal error LNK1120: 3 externos sin resolver

@@ -441,3 +441,129 @@ void HideBubbleContainer::createHiddenRow(HiddenBoard* board, const BinaryBubble
 		board->createRow(ids, row, boardId);
 	else board->createEmptyRow(row, boardId);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+BoardRow::BoardRow(BubbleBoard* const& parent, int downs) :
+	_parent(parent),
+	_little(std::abs(downs % 2)),
+	_bubs(_parent->_columns, nullptr)
+{}
+
+BoardRow::~BoardRow() { destroy(); }
+
+Bubble* BoardRow::getBubble(uint8 column) const
+{
+	if (column < 0 || column >= (_parent->_columns - _little))
+		throw BPSException("Illegal Argument Exception");
+	return _bubs[column];
+}
+
+bool BoardRow::containsBubble(uint8 column) const
+{
+	if (column < 0 || column >= (_parent->_columns - _little))
+		throw BPSException("Illegal Argument Exception");
+	return _bubs[column];
+}
+
+void BoardRow::forEachBubble(void(*action)(Bubble*))
+{
+	for (auto b : _bubs)
+		if (b)
+			action(b);
+}
+
+
+
+void BoardRow::setBubble(int32 row, uint8 column, Bubble* b)
+{
+	setBubble({ this, row, column }, b);
+}
+
+void BoardRow::setBubble(const BoardCell& cell, Bubble* b)
+{
+	if (cell._column < 0 || cell._column >= (_parent->_columns - _little))
+		throw BPSException("Illegal Argument Exception");
+
+	b->setPosition(_parent->getPosition().x + (BUBBLE_WIDTH * cell._column) + 
+			(_little * BUBBLE_WIDTH / 2) + BUBBLE_WIDTH / 2,
+			_parent->getPosition().y + (BUBBLE_HEIGHT * cell._row) + BUBBLE_WIDTH / 2);
+	b->setBoardCell(cell);
+	Bubble* old = _bubs[cell._column];
+	if (!old)
+		_parent->_size++;
+	else delete old;
+	_bubs[cell._column] = b;
+}
+
+Bubble* BoardRow::removeBubble(uint8 column)
+{
+	if (column < 0 || column >= (_parent->_columns - _little))
+		throw BPSException("Illegal Argument Exception");
+
+	Bubble* b = _bubs[column];
+	if(!b)
+		throw BPSException("Null Pointer Exception");
+
+	b->removeBoardCell();
+	_bubs[column] = nullptr;
+	_parent->_size--;
+	return b;
+}
+
+uint32 BoardRow::destroy()
+{
+	uint32 ct = 0;
+	size_t len = _bubs.size();
+
+	for (size_t i = 0; i < len; i++)
+	{
+		Bubble* b = _bubs[i];
+		if (!b)
+			continue;
+		b->removeBoardCell();
+		_bubs[i] = nullptr;
+		delete b;
+		_parent->_size--;
+		ct++;
+	}
+	return ct;
+}
+
+void BoardRow::down()
+{
+	for (auto b : _bubs)
+	{
+		if (!b)
+		{
+			b->boardCell()._row++;
+			b->translate(0, static_cast<float>(BUBBLE_HEIGHT));
+		}
+	}
+}
+
+uint32 BoardRow::count()
+{
+	uint32 ct = 0;
+	for (auto& b : _bubs)
+		if (b)
+			ct++;
+	return ct;
+}
+
+bool BoardRow::hasInvalidBottomBubble()
+{
+	for (auto& b : _bubs)
+		if (b && !b->destroyInBottom())
+			return true;
+	return false;
+}

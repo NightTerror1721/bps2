@@ -2,9 +2,12 @@
 
 #include "assets.h"
 
+#include "audio.h"
+
 #include <string>
 #include <functional>
 #include <map>
+#include <set>
 
 #define BUBBLE_WIDTH 30
 #define BUBBLE_HEIGHT 26
@@ -12,6 +15,11 @@
 
 class Bubble;
 class BubbleManager;
+
+class Scenario;
+
+class BubbleBoard;
+class BoardRow;
 
 using color_mask_t = uint8;
 
@@ -75,8 +83,6 @@ struct BubbleModel
 {
 	std::string name;
 
-	bool requireColor;
-
 	std::function<void(Bubble*, Bubble*)> onCollide;
 	std::function<void(Bubble*)> onInserted;
 	std::function<void(Bubble*)> onExplode;
@@ -84,10 +90,70 @@ struct BubbleModel
 	std::function<void(Bubble*, Bubble*)> onNeighborExplode;
 
 	std::function<void(Bubble*, uint8, bool)> init;
+
+	/* Properties */
+	bool requireColor;
+	bool floating = false;
+	bool destroyInBottom = false;
+	bool requireDestroyToClear = true;
+
+	int8 resistence;
+	float pointsOfTurnsToDown;
 };
 
 
 
+
+
+enum class BounceEdge { None, Top, Bottom, Left, Right };
+
+class BouncingBounds
+{
+private:
+	Bubble* const _bubble;
+	sf::IntRect _bounds;
+	bool _top;
+	bool _bottom;
+
+public:
+	BouncingBounds(Bubble* const bubble);
+
+	BounceEdge checkBounce();
+
+	inline void setBounds(const sf::IntRect& bounds) { _bounds = bounds; }
+	inline void setTop(const bool& top) { _top = top; }
+	inline void setBottom(const bool& bottom) { _bottom = bottom; }
+};
+
+
+
+
+
+class BoardCell
+{
+private:
+	BoardRow* _parent;
+	const uint8 _column;
+	int32 _row;
+
+	BoardCell(BoardRow* const& parent, int32 row, uint8 column);
+
+public:
+	inline BoardCell() : BoardCell(nullptr, 0, 0) {}
+
+	BoardRow* getBoardRow() const;
+	BubbleBoard* getBoard() const;
+	Scenario* getScenario() const;
+	uint8 getLittle() const;
+	int32 getRow() const;
+	uint8 getColumn() const;
+	bool isInBottomRow() const;
+
+	bool operator! () const;
+
+	friend class BubbleBoard;
+	friend class BoardRow;
+};
 
 
 
@@ -99,16 +165,22 @@ private:
 	BubbleModel *const _model;
 
 	const TextureManager* _texs;
-	Vec2f _allocScenario;
+	Scenario* _allocScenario;
+	Vec2f _allocPosition;
 	Vec2i _allocCell;
 	bool _floatingCheckPhase;
 	Vec2f _speed;
 	Vec2f _acceleration;
 
 	BubbleColor _bcolor;
-	uint8 _resistence;
 
 	AnimatedSprite _sprite;
+
+	BouncingBounds _bounce;
+
+	BoardCell _cell;
+
+	sf::Sound* _arrowFireSound;
 
 	bool _exploited;
 
@@ -117,23 +189,87 @@ private:
 public:
 	~Bubble();
 
-	inline bool isExploited() { return _exploited; }
+	void setSpeed(const Vec2f& speed);
+	const Vec2f& getSpeed() const;
 
-	inline Vec2f& speed() { return _speed; }
-	inline Vec2f& acceleration() { return _acceleration; }
+	void setAcceleration(const Vec2f& acceleration);
+	const Vec2f& getAcceleration() const;
 
-	inline uint8& resistence() { return _resistence; }
+	inline bool isExploited() const { return _exploited; }
+
+	inline const BubbleColor& getColor() const { return _bcolor; }
+
+	inline int8 getResistence() const { return _model->resistence < 0 ? 127 : _model->resistence; }
+	inline bool isIndestructible() const { return _model->resistence < 0; }
+
+	inline void translate(float dx, float dy) { translate({ dx, dy }); }
+	inline void move(float speedx, float speedy, float accelerationx, float accelerationy) { move({ speedx, speedy }, { accelerationx, accelerationy }); }
+	inline void move(float speedx, float speedy) { move({ speedx, speedy }); }
+	inline void stop() { move({ 0, 0 }, { 0, 0 }); }
+	inline void fall() { move({ 0, 120.f }, { 0, 45.f }); }
+
+	inline bool isMoving() const { return !(!_speed && !_acceleration); }
+
+	inline const BoardCell& getBoardCell() const { return _cell; }
+	inline BoardCell& boardCell() { return _cell; }
+	inline bool containsBoardCell() const { return !(!_cell); }
+
+	inline bool isFloating() const { return _model->floating; }
+	inline bool destroyInBottom() const { return _model->destroyInBottom; }
+	inline bool requireDestroyToClear() const { return _model->requireDestroyToClear; }
+
+	inline float getPointsOfTurnsToDown() const { return _model->pointsOfTurnsToDown; }
+
+	inline bool isAllocatingPosition() const { return _allocScenario != nullptr; }
 
 
 	BubbleIdentifier getIdentifier() const;
 
+
+	void translate(const Vec2f& dp);
+	void move(const Vec2f& speed, const Vec2f& acceleration);
+	void move(const Vec2f& speed);
+
+	void setBounce(const sf::IntRect& bounds, bool top, bool bottom);
+
+	bool colorMatch(Bubble* other) const;
+
+	void setBoardCell(const BoardCell& cell);
+	void removeBoardCell();
+
+	void fire(Scenario* scenario, float degrees, sf::Sound* fireSound);
+
+	void stopFireSound();
+
+	void explode(Scenario* scenario);
+
+	void destroy();
+
 	void draw(sf::RenderTarget *const (&g));
-	//void update(delta_t delta);
+	void draw(sf::RenderTarget *const (&g), float dx);
+
+	void update(delta_t delta);
+
+	void collideWithNeighbors(BubbleBoard* board);
+
+	void reallocatePosition(std::vector<Bubble*> neighbors, delta_t delta);
+
+	void allocate(Scenario* scenario);
 
 
-	void explode() {}
+	void callOnCollide(Scenario* scenario, Bubble* other);
+
+
+	
 
 	friend Bubble* CreateNewBubble(BubbleModel* model, const BubbleColor& color, TextureManager* textureManager, bool editorMode);
+
+private:
+	void draw(sf::RenderTarget *const (&g), float x, float y);
+
+	bool findAllocationPosition(const Vec2i& pcell, Scenario* scenario, BubbleBoard* board, std::set<Vec2i>& visited);
+
+	void updateAllocation(delta_t delta);
 };
 
 

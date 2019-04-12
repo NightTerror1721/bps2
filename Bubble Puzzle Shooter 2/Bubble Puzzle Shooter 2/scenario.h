@@ -223,6 +223,8 @@ public:
 
 class Scenario;
 class BubbleBoard;
+class BoardRow;
+class Boardcell;
 
 class BubbleColorRandomizer
 {
@@ -376,5 +378,61 @@ private:
 
 	void createHiddenRow(HiddenBoard* board, const BinaryBubbleBoard& bbb, uint8 row, uint8 boardId);
 
+};
+
+
+
+
+
+class BoardRow
+{
+private:
+	BubbleBoard* const _parent;
+	uint8 _little;
+	std::vector<Bubble*> _bubs;
+
+	BoardRow(BubbleBoard* const& parent, int downs);
+
+public:
+	~BoardRow();
+
+	Bubble* getBubble(uint8 column) const;
+
+	bool containsBubble(uint8 column) const;
+
+	void forEachBubble(void (*action)(Bubble*));
+
+	friend class BubbleBoard;
+	friend class BoardCell;
+
+private:
+	void setBubble(int32 row, uint8 column, Bubble* b);
+	void setBubble(const BoardCell& cell, Bubble* b);
+
+	Bubble* removeBubble(uint8 column);
+
+	uint32 destroy();
+
+	void down();
+
+	uint32 count();
+
+	bool hasInvalidBottomBubble();
+};
+
+
+
+class BubbleBoard : public sf::Transformable
+{
+private:
+	Scenario* const _scenario;
+	uint8 _columns;
+	uint32 _size;
+
+public:
+
+
+	friend class BoardRow;
+	friend class BoardCell;
 };
 
