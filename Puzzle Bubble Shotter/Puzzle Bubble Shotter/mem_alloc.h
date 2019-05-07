@@ -2,20 +2,26 @@
 
 #include <vector>
 #include <functional>
+#include <exception>
 
 #include "config.h"
 
 namespace
 {
 	template<class _Ty>
+	struct AllocatorList;
+
+	template<class _Ty>
 	struct Allocator final
 	{
+		AllocatorList<_Ty>* const _list;
 		_Ty data;
 		Allocator* next;
 		Allocator* prev;
 
 		template<class... _Args>
-		Allocator(_Args&&... args) :
+		Allocator(AllocatorList<_Ty>* const& list, _Args&&... args) :
+			_list(list),
 			data(args...),
 			next(nullptr),
 			prev(nullptr)
@@ -27,7 +33,93 @@ namespace
 		Allocator& operator= (const Allocator&) = delete;
 		Allocator& operator= (Allocator&&) = delete;
 	};
+};
 
+
+template<class _Ty>
+class AllocatorIterator
+{
+private:
+	using alloc_t = Allocator<_Ty>*;
+
+	alloc_t& _alloc;
+	bool _end;
+
+public:
+	bool operator== (const AllocatorIterator& it) const { return _end == it._end && _alloc == it._alloc; }
+	bool operator!= (const AllocatorIterator& it) const { return _end != it._end && _alloc != it._alloc; }
+
+	bool operator! () const { return _end; }
+	operator bool() { return !_end; }
+
+	AllocatorIterator& operator++ ()
+	{
+		if (_end)
+			throw no_such_element();
+
+		if (!_alloc->next)
+			_end = true;
+		else _alloc = _alloc->next;
+
+		return *this;
+	}
+	AllocatorIterator operator++ (int)
+	{
+		AllocatorIterator old{ _alloc, _end };
+		operator++();
+		return old;
+	}
+
+	AllocatorIterator& operator-- ()
+	{
+		if (_alloc->prev)
+		{
+			_alloc = _alloc->prev;
+			_end = false;
+		}
+		else throw no_such_element();
+
+		return *this;
+	}
+	AllocatorIterator operator-- (int)
+	{
+		AllocatorIterator old{ _alloc, _end };
+		operator--();
+		return old;
+	}
+
+	_Ty& operator* ()
+	{
+		return _alloc->data;
+	}
+	const _Ty& operator* () const
+	{
+		return _alloc->data;
+	}
+
+	_Ty* operator->()
+	{
+		return &_alloc->data;
+	}
+	const _Ty* operator->() const
+	{
+		return &_alloc->data;
+	}
+
+	template<class _Ty>
+	friend struct AllocatorList;
+
+
+private:
+	AllocatorIterator(alloc_t& alloc, bool end) : _alloc(alloc), _end(end) {}
+
+public:
+	class no_such_element : public std::exception {};
+};
+
+
+namespace
+{
 	template<class _Ty>
 	struct AllocatorList
 	{
@@ -39,7 +131,9 @@ namespace
 		AllocatorList() :
 			_head(nullptr),
 			_tail(nullptr),
-			_size(0)
+			_size(0),
+			_begin(_head, false),
+			_end(_tail, true)
 		{}
 		~AllocatorList() { clear(); }
 
@@ -48,12 +142,12 @@ namespace
 		{
 			if (!_head)
 			{
-				_head = new Node(args...);
+				_head = new Node(this, args...);
 				_tail = _head;
 				_size++;
 				return _head;
 			}
-			Node* node = new Node(args...);
+			Node* node = new Node(this, args...);
 			node->prev = _tail;
 			_tail->next = node;
 			_tail = node;
@@ -63,38 +157,33 @@ namespace
 
 		void destroy(Node* const& allocator)
 		{
-			if (!_head)
+			if (!_head || allocator->_list != this)
 				return;
 
-			for (Node* current = _head; current; current = current->next)
+			Node* current = allocator;
+
+			if (_head == _tail)
 			{
-				if (current != allocator)
-					continue;
+				delete _head;
+				_head = nullptr;
+				_tail = nullptr;
+				_size = 0;
+			}
+			else
+			{
+				Node* prev = current->prev;
+				Node* next = current->next;
 
-				if (_head == _tail)
-				{
-					delete _head;
-					_head = nullptr;
-					_tail = nullptr;
-					_size = 0;
-				}
-				else
-				{
-					Node* prev = current->prev;
-					Node* next = current->next;
+				if (current == _head)
+					_head = _head->next;
+				if (current == _tail)
+					_tail = _tail->prev;
 
-					if (node == _head)
-						_head = _head->next;
-					if (node == _tail)
-						_tail = _tail->prev;
+				prev->next = next;
+				next->prev = prev;
+				_size--;
 
-					prev->next = next;
-					next->prev = prev;
-					_size--;
-
-					delete current;
-				}
-				break;
+				delete current;
 			}
 		}
 
@@ -123,6 +212,18 @@ namespace
 			for (Node* current = _head; current; current = current->next)
 				action(current->data);
 		}
+
+
+		/* Iterable part */
+	private:
+		AllocatorIterator<_Ty> _begin;
+		AllocatorIterator<_Ty> _end;
+
+	public:
+		AllocatorIterator<_Ty> begin() { return _begin; }
+		const AllocatorIterator<_Ty> begin() const { return _begin; }
+		AllocatorIterator<_Ty> end() { return _end; }
+		const AllocatorIterator<_Ty> end() const { return _end; }
 	};
 
 }
@@ -136,6 +237,7 @@ private:
 	alloc_t* _alloc;
 
 public:
+	Ptr() : _alloc(nullptr) {}
 	Ptr(std::nullptr_t) : _alloc(nullptr) {}
 	Ptr& operator= (std::nullptr_t) { _alloc = nullptr; return *this; }
 
@@ -168,59 +270,39 @@ private:
 template<class _Ty>
 class MemoryAllocator
 {
-	static_assert(std::is_base_of<UniqueObject, _Ty>::value, "_Ty must be derive from UniqueObject");
-
 public:
 	using ptr_t = Ptr<_Ty>;
 	using alloc_t = Allocator<_Ty>;
+	using iterator = AllocatorIterator<_Ty>;
+	using const_iterator = const AllocatorIterator<_Ty>;
 
 private:
 	AllocatorList<_Ty> _mem;
-	std::unordered_map<UUID, alloc_t*, UUID_Hash> _map;
 
 public:
-	MemoryAllocator() : _mem(), _map() {}
+	MemoryAllocator() : _mem() {}
 	~MemoryAllocator() {}
 
 	template<class... _Args>
 	ptr_t create(_Args&&... args)
 	{
-		alloc_t* alloc = _mem.create(args...);
-		_map[alloc->data.uuid()] = alloc;
-		return { alloc };
+		return { _mem.create(args...) };
 	}
 
-	ptr_t find(const UUID& id)
+	inline void destroy(ptr_t ptr)
 	{
-		auto it = _map.find(id);
-		if (it == _map.end())
-			return nullptr;
-		return { *it };
+		_mem.destroy(ptr._alloc);
 	}
 
-	const ptr_t find(const UUID& id) const
+	inline void clear()
 	{
-		auto it = _map.find(id);
-		if (it == _map.cend())
-			return nullptr;
-		return { *it };
-	}
-
-	void destroy(const UUID& id)
-	{
-		auto it = _map.find(id);
-		if (it == _map::end())
-			return;
-
-		alloc_t* alloc = *it;
-		_map.erase(it);
-		_mem.destroy(alloc);
+		_mem.clear();
 	}
 
 	std::vector<ptr_t> find(std::function<bool(const _Ty&)> criteria)
 	{
 		std::vector<Ptr<_Ty>> vec;
-		for (Allocator<_Ty>* alloc = _mem._head; alloc; alloc = alloc->next)
+		for (alloc_t* alloc = _mem._head; alloc; alloc = alloc->next)
 			if (criteria(alloc->data))
 				vec.push_back({ alloc });
 		return std::move(vec);
@@ -229,8 +311,13 @@ public:
 	inline void forEach(std::function<void(_Ty&)> action) { _mem.forEach(action); }
 	inline void forEach(std::function<void(const _Ty&)> action) const { _mem.forEach(action); }
 
-	inline void destroy(ptr_t ptr) { destroy(ptr->uuid()); }
+	inline ptr_t operator[] (const UniqueID& id) { return find(id); }
+	inline const ptr_t operator[] (const UniqueID& id) const { return find(id); }
 
-	inline ptr_t operator[] (const UUID& id) { return find(id); }
-	inline const ptr_t operator[] (const UUID& id) const { return find(id); }
+	iterator begin() { return _mem.begin(); }
+	const_iterator begin() const { return _mem.begin(); }
+	const_iterator cbegin() const { return _mem.begin(); }
+	iterator end() { return _mem.end(); }
+	const_iterator end() const { return _mem.end(); }
+	const_iterator cend() const { return _mem.end(); }
 };

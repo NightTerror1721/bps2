@@ -1,8 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <vector>
-#include <unordered_map>
 #include <type_traits>
 #include <SFML/System/Vector2.hpp>
 
@@ -29,39 +27,39 @@ using std::size_t;
 template<class _Ty>
 class MemoryAllocator;
 
-class UUID
+class UniqueID
 {
 private:
 	u64 _code;
 	static u64 __gen;
 
 public:
-	static UUID generate();
+	static UniqueID generate();
 
-	bool operator== (const UUID& uuid) const;
-	bool operator!= (const UUID& uuid) const;
-	bool operator> (const UUID& uuid) const;
-	bool operator< (const UUID& uuid) const;
-	bool operator>= (const UUID& uuid) const;
-	bool operator<= (const UUID& uuid) const;
+	bool operator== (const UniqueID& uuid) const;
+	bool operator!= (const UniqueID& uuid) const;
+	bool operator> (const UniqueID& uuid) const;
+	bool operator< (const UniqueID& uuid) const;
+	bool operator>= (const UniqueID& uuid) const;
+	bool operator<= (const UniqueID& uuid) const;
 
-	friend std::ostream& operator<< (std::ostream& os, const UUID& uuid);
-	friend std::istream& operator>> (std::istream& is, UUID& uuid);
+	friend std::ostream& operator<< (std::ostream& os, const UniqueID& uuid);
+	friend std::istream& operator>> (std::istream& is, UniqueID& uuid);
 
 	friend class UUID_Hash;
 	template<class _Ty> friend class MemoryAllocator;
 
 private:
-	UUID(u64 code);
+	UniqueID(u64 code);
 };
 
-std::ostream& operator<< (std::ostream& os, const UUID& uuid);
-std::istream& operator>> (std::istream& is, UUID& uuid);
+std::ostream& operator<< (std::ostream& os, const UniqueID& uuid);
+std::istream& operator>> (std::istream& is, UniqueID& uuid);
 
 class UUID_Hash
 {
 public:
-	size_t operator() (const UUID& uuid) const
+	size_t operator() (const UniqueID& uuid) const
 	{
 		return std::hash<u64>()(uuid._code);
 	}
@@ -71,14 +69,40 @@ public:
 class UniqueObject
 {
 private:
-	const UUID _id;
+	const UniqueID _id;
 
 public:
 	explicit UniqueObject();
 
-	const UUID& uuid() const;
+	const UniqueID& uuid() const;
 
 	virtual bool operator== (const UniqueObject& uo);
 	virtual bool operator!= (const UniqueObject& uo);
 };
+
+
+
+namespace Path
+{
+	constexpr char Separator =
+#ifdef _WIN32
+		'\\';
+#else
+		'/';
+#endif
+
+	class joinPath
+	{
+	private:
+		std::string _str;
+
+	public:
+		explicit joinPath(const std::string& base);
+
+		joinPath& operator<< (const std::string& path);
+
+		operator std::string();
+	};
+	
+}
 

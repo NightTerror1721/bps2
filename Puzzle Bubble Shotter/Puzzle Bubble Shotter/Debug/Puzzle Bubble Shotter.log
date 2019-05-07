@@ -1,4 +1,7 @@
-﻿  engine.cpp
+﻿  assets.cpp
+  audio.cpp
+  config.cpp
+  engine.cpp
   game_objs.cpp
   main.cpp
   Generando código...

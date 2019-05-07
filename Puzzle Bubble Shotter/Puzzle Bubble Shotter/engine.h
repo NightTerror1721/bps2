@@ -30,11 +30,14 @@ private:
 
 	MemoryAllocator<GameObject> _objs;
 
+
 public:
 	GameController(const std::string& name);
 	~GameController();
 
 	void start();
+
+	void close();
 
 	void setVideoMode(sf::VideoMode mode, bool apply = true);
 	void setStyle(u32 style, bool apply = true);
@@ -45,17 +48,23 @@ public:
 	template<class... _Args>
 	Ptr<GameObject> createGameObject(_Args&&... args)
 	{
-		return _objs.create(args...);
+		Ptr<GameObject> obj = _objs.create(args...);
+		obj->_gc = this;
+		return obj;
 	}
 
 	void destroyGameObject(Ptr<GameObject> obj_ptr);
 
-	Ptr<GameObject> findGameObject(const UUID& id);
-	const Ptr<GameObject> findGameObject(const UUID& id) const;
+	std::vector<Ptr<GameObject>> findGameObject(std::function<bool(const GameObject&)> criteria);
 
-	template<class _GoTy = GameObject>
-	void forEachGameObject(void(*action)(_GoTy&))
-	{
+	void forEachGameObject(std::function<void(GameObject&)> action);
+	void forEachGameObject(std::function<void(const GameObject&)> action) const;
 
-	}
+private:
+	void loop();
+
+	void init();
+	void update(delta_t delta);
+	void render();
+	void processEvents();
 };

@@ -1,17 +1,14 @@
 #include <iostream>
 
 #include "mem_alloc.h"
+#include "engine.h"
 
 
 int main(int argc, char** argv)
 {
 
-	MemoryAllocator<UniqueObject> mem;
+	GameController gc("Puzzle Bubble Shooter");
 
-	auto ptr = mem.create();
-
-	mem.find([&ptr](const UniqueObject& obj) -> bool { return ptr->uuid() == obj.uuid(); });
-
-	std::cout << ptr->uuid() << std::endl;
+	gc.start();
 
 }
