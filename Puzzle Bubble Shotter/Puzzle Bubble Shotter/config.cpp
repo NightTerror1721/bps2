@@ -31,12 +31,3 @@ const UniqueID& UniqueObject::uuid() const { return _id; }
 
 bool UniqueObject::operator== (const UniqueObject& uo) { return _id == uo._id; }
 bool UniqueObject::operator!= (const UniqueObject& uo) { return _id != uo._id; }
-
-
-Path::joinPath::joinPath(const std::string& base) :
-	_str(base)
-{}
-
-Path::joinPath& Path::joinPath::operator<< (const std::string& path) { _str += Path::Separator + path; return *this; }
-
-Path::joinPath::operator std::string() { return _str; }

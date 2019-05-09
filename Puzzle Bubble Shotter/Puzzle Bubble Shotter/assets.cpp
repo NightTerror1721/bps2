@@ -2,6 +2,8 @@
 
 #include <chrono>
 
+#include "paths.h"
+
 TextureManager::TextureManager(TextureManager* const& parent) :
 	Manager(parent)
 {}
@@ -9,19 +11,19 @@ TextureManager::TextureManager(TextureManager* const& parent) :
 void TextureManager::load(const std::string& texture_path, const std::string& name)
 {
 	auto tex = create(name);
-	tex->loadFromFile(texture_path);
+	tex->loadFromFile(Path::Textures + texture_path);
 }
 
 void TextureManager::load(const std::string& texture_path, const std::string& name, const sf::IntRect& dims)
 {
 	auto tex = create(name);
-	tex->loadFromFile(texture_path, dims);
+	tex->loadFromFile(Path::Textures + texture_path, dims);
 }
 
 void TextureManager::load(const std::string& texture_path, const std::string& name, const int& x, const int& y, const int& width, const int& height)
 {
 	auto tex = create(name);
-	tex->loadFromFile(texture_path, { x, y, width, height });
+	tex->loadFromFile(Path::Textures + texture_path, { x, y, width, height });
 }
 
 

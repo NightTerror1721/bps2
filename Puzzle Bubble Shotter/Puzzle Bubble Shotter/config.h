@@ -80,29 +80,3 @@ public:
 	virtual bool operator!= (const UniqueObject& uo);
 };
 
-
-
-namespace Path
-{
-	constexpr char Separator =
-#ifdef _WIN32
-		'\\';
-#else
-		'/';
-#endif
-
-	class joinPath
-	{
-	private:
-		std::string _str;
-
-	public:
-		explicit joinPath(const std::string& base);
-
-		joinPath& operator<< (const std::string& path);
-
-		operator std::string();
-	};
-	
-}
-

@@ -35,6 +35,8 @@ namespace
 	};
 };
 
+#define ALLOCATOR_FRIEND template<class _Ty> friend struct Allocator
+
 
 template<class _Ty>
 class AllocatorIterator
@@ -260,6 +262,9 @@ public:
 	inline _Ty* operator-> () { return &_alloc->data; }
 	inline const _Ty* operator-> () const { return &_alloc->data; }
 
+	inline _Ty* operator& () { return &_alloc->data; }
+	inline const _Ty* operator& () const { return &_alloc->data; }
+
 	template<class _Ty> friend class MemoryAllocator;
 
 private:
@@ -284,12 +289,12 @@ public:
 	~MemoryAllocator() {}
 
 	template<class... _Args>
-	ptr_t create(_Args&&... args)
+	ptr_t malloc(_Args&&... args)
 	{
 		return { _mem.create(args...) };
 	}
 
-	inline void destroy(ptr_t ptr)
+	inline void free(ptr_t ptr)
 	{
 		_mem.destroy(ptr._alloc);
 	}

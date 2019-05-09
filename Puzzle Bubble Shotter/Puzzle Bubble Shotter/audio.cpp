@@ -1,4 +1,5 @@
 #include "audio.h"
+#include "paths.h"
 
 AudioManager::AudioManager(AudioManager* const& parent) :
 	Manager(parent)
@@ -7,7 +8,7 @@ AudioManager::AudioManager(AudioManager* const& parent) :
 void AudioManager::load(const std::string& filename, const std::string& name)
 {
 	sf::SoundBuffer sb;
-	if (!sb.loadFromFile(build_path(filename)))
+	if (!sb.loadFromFile(Path::Sounds + filename))
 		return;
 
 	auto sound = create(name);
@@ -17,7 +18,7 @@ void AudioManager::load(const std::string& filename, const std::string& name)
 music_t Music::open(const std::string& filename)
 {
 	music_t music(new sf::Music());
-	if (!music->openFromFile(filename))
+	if (!music->openFromFile(Path::Musics + filename))
 	{
 		music.release();
 		return nullptr;
@@ -50,13 +51,4 @@ void Music::pause(music_t& music)
 {
 	if (music)
 		music->pause();
-}
-
-
-namespace
-{
-	std::string build_path(const std::string& filename)
-	{
-		return Path::joinPath("data") << "audio" << "sounds" << filename;
-	}
 }

@@ -59,7 +59,7 @@ void GameController::resetWindow()
 
 bool GameController::isFullscreen() const { return _wstyle & wstyle::Fullscreen; }
 
-void GameController::destroyGameObject(Ptr<GameObject> obj_ptr) { _objs.destroy(obj_ptr); }
+void GameController::destroyGameObject(Ptr<GameObject> obj_ptr) { _objs.free(obj_ptr); }
 
 std::vector<Ptr<GameObject>> GameController::findGameObject(std::function<bool(const GameObject&)> criteria) { return _objs.find(criteria); }
 

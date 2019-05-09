@@ -13,54 +13,90 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Archivos de encabezado\Bubbles">
+      <UniqueIdentifier>{94b09183-50ff-4483-ac2e-2900f8fa9b91}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Archivos de encabezado\Utils">
+      <UniqueIdentifier>{06ebfed3-f99a-4c2c-b8d9-eabc1ae3f562}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Archivos de origen\Bubbles">
+      <UniqueIdentifier>{5772fe88-f84a-4fe6-97bc-1c8ffa8514ca}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Archivos de origen\Utils">
+      <UniqueIdentifier>{2f95dc5c-6658-42ec-a7d8-bb7afae009fb}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Archivos de encabezado\Engine">
+      <UniqueIdentifier>{38a84af0-24e3-41b9-b3b5-7ce6e8560482}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Archivos de origen\Engine">
+      <UniqueIdentifier>{eac4b416-0517-4e69-a460-9f5139d43a8e}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="py.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="engine.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
     <ClCompile Include="config.cpp">
-      <Filter>Archivos de origen</Filter>
+      <Filter>Archivos de origen\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="game_objs.cpp">
-      <Filter>Archivos de origen</Filter>
+    <ClCompile Include="py.cpp">
+      <Filter>Archivos de origen\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="paths.cpp">
+      <Filter>Archivos de origen\Utils</Filter>
     </ClCompile>
     <ClCompile Include="assets.cpp">
-      <Filter>Archivos de origen</Filter>
+      <Filter>Archivos de origen\Engine</Filter>
     </ClCompile>
     <ClCompile Include="audio.cpp">
-      <Filter>Archivos de origen</Filter>
+      <Filter>Archivos de origen\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine.cpp">
+      <Filter>Archivos de origen\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="game_objs.cpp">
+      <Filter>Archivos de origen\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="bubbles.cpp">
+      <Filter>Archivos de origen\Bubbles</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="py.h">
-      <Filter>Archivos de encabezado</Filter>
+      <Filter>Archivos de encabezado\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="engine.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="config.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="game_objs.h">
-      <Filter>Archivos de encabezado</Filter>
+    <ClInclude Include="paths.h">
+      <Filter>Archivos de encabezado\Utils</Filter>
     </ClInclude>
     <ClInclude Include="mem_alloc.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="assets.h">
-      <Filter>Archivos de encabezado</Filter>
+      <Filter>Archivos de encabezado\Utils</Filter>
     </ClInclude>
     <ClInclude Include="manager.h">
-      <Filter>Archivos de encabezado</Filter>
+      <Filter>Archivos de encabezado\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>Archivos de encabezado\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="assets.h">
+      <Filter>Archivos de encabezado\Engine</Filter>
     </ClInclude>
     <ClInclude Include="audio.h">
-      <Filter>Archivos de encabezado</Filter>
+      <Filter>Archivos de encabezado\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine.h">
+      <Filter>Archivos de encabezado\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="game_objs.h">
+      <Filter>Archivos de encabezado\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="bubbles.h">
+      <Filter>Archivos de encabezado\Bubbles</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

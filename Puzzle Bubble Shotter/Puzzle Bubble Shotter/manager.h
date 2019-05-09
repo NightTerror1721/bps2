@@ -38,7 +38,7 @@ public:
 				return nullptr;
 			return _parent->get(name);
 		}
-		return *it;
+		return it->second;
 	}
 
 	const elem_t get(const std::string& name) const
@@ -50,7 +50,7 @@ public:
 				return nullptr;
 			return _parent->get(name);
 		}
-		return *it;
+		return it->second;
 	}
 
 	void destroy(const std::string& name)
@@ -61,7 +61,7 @@ public:
 
 		elem_t e = *it;
 		_map.erase(it);
-		_alloc.destroy(e);
+		_alloc.free(e);
 	}
 
 	void clear()
@@ -80,7 +80,7 @@ protected:
 		if (has(name))
 			return nullptr;
 
-		elem_t e = _alloc.create(args...);
+		elem_t e = _alloc.malloc(args...);
 		_map[name] = e;
 		return e;
 	}

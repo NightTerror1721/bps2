@@ -23,8 +23,3 @@ namespace Music
 	void stop(music_t& music);
 	void pause(music_t& music);
 }
-
-namespace
-{
-	std::string build_path(const std::string& filename);
-}

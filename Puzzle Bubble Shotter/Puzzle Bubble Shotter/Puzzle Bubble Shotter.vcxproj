@@ -137,20 +137,24 @@
   <ItemGroup>
     <ClCompile Include="assets.cpp" />
     <ClCompile Include="audio.cpp" />
+    <ClCompile Include="bubbles.cpp" />
     <ClCompile Include="config.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="game_objs.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="paths.cpp" />
     <ClCompile Include="py.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="assets.h" />
     <ClInclude Include="audio.h" />
+    <ClInclude Include="bubbles.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="game_objs.h" />
     <ClInclude Include="manager.h" />
     <ClInclude Include="mem_alloc.h" />
+    <ClInclude Include="paths.h" />
     <ClInclude Include="py.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
