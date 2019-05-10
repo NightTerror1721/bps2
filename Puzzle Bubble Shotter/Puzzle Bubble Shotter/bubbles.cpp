@@ -65,6 +65,11 @@ bool operator& (const colormask_t& mask, const BubbleColor& color) { return mask
 
 
 
+bool operator== (const BubbleModel& bm0, const BubbleModel& bm1) { return bm0.name == bm1.name; }
+bool operator!= (const BubbleModel& bm0, const BubbleModel& bm1) { return bm0.name == bm1.name; }
+
+
+
 
 BouncingBounds::BouncingBounds(Bubble* const& bubble) :
 	_bubble(bubble),
@@ -143,6 +148,11 @@ Ptr<BubbleModel> Bubble::getModel() const { return _model; }
 
 bool Bubble::hasExploited() const { return _exploited; }
 
+void Bubble::explode()
+{
+	//TODO: Implement
+}
+
 void Bubble::setSpeed(const vec2f& speed) { _speed = speed; }
 const vec2f& Bubble::getSpeed() const { return _speed; }
 
@@ -152,6 +162,9 @@ const vec2f& Bubble::getAcceleration() const { return _acceleration; }
 void Bubble::translate(const vec2f& dp) { setPosition(getPosition() + dp); }
 void Bubble::translate(const float& dx, const float& dy) { translate({ dx, dy }); }
 void Bubble::move(const vec2f& speed, const vec2f& acceleration) { _speed = speed; _acceleration = acceleration; }
+
+BubbleColor Bubble::getColor() const { return _color; }
+ColorType Bubble::getColorType() const { return _model->colorType; }
 
 bool Bubble::colorMatch(const Ptr<Bubble>& other) const
 {
@@ -173,6 +186,9 @@ bool Bubble::colorMatch(const Ptr<Bubble>& other) const
 	}
 	return false;
 }
+
+AnimatedSprite* Bubble::getSprite() { return &_sprite; }
+const AnimatedSprite* Bubble::getSprite() const { return &_sprite; }
 
 
 /* Model functions */
@@ -196,8 +212,10 @@ void Bubble::setLocalString(const u8& index, const std::string& value) { _localS
 
 
 
+
 BubbleModelManager::BubbleModelManager() :
-	Manager()
+	Manager(),
+	Singleton()
 {}
 
 Ptr<BubbleModel> BubbleModelManager::createNew(const std::string& name)
@@ -206,6 +224,13 @@ Ptr<BubbleModel> BubbleModelManager::createNew(const std::string& name)
 	model->name = name;
 	return model;
 }
+
+BubbleModelManager BubbleModelManager::_Instance{};
+
+Ptr<BubbleModel> RegisterBubbleModel(const std::string& name) { return BubbleModelManager::_Instance.createNew(name); }
+Ptr<BubbleModel> GetBubbleModel(const std::string& name) { return BubbleModelManager::_Instance.get(name); }
+bool HasBubbleModel(const std::string& name) { return BubbleModelManager::_Instance.has(name); }
+
 
 
 
@@ -223,7 +248,7 @@ Ptr<Bubble> BubbleHeap::createNew(const std::string& modelName, TextureManager* 
 	auto model = _models->get(modelName);
 	auto bubble = malloc(model, textures);
 	
-	model->init(&bubble, color.id(), editorMode);
+	model->init(&bubble, color, editorMode);
 	return bubble;
 }
 

@@ -76,7 +76,22 @@ public:
 
 	const UniqueID& uuid() const;
 
-	virtual bool operator== (const UniqueObject& uo);
-	virtual bool operator!= (const UniqueObject& uo);
+	virtual bool operator== (const UniqueObject& uo) const;
+	virtual bool operator!= (const UniqueObject& uo) const;
+};
+
+
+class Singleton
+{
+protected:
+	Singleton();
+	~Singleton();
+
+private:
+	Singleton(const Singleton&);
+	Singleton(Singleton&&);
+
+	Singleton& operator= (const Singleton&);
+	Singleton& operator= (Singleton&&);
 };
 

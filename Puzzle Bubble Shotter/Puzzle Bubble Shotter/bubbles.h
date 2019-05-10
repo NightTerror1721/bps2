@@ -81,7 +81,7 @@ struct BubbleModel
 
 
 	/* FUNCTIONS */
-	std::function<void(Bubble*, u8, bool)> init;
+	std::function<void(Bubble*, BubbleColor, bool)> init;
 
 	std::function<void(Bubble*, Bubble*)> onCollide;
 	std::function<void(Bubble*)> onInserted;
@@ -89,6 +89,9 @@ struct BubbleModel
 	std::function<void(Bubble*, Bubble*)> onNeighborInserted;
 	std::function<void(Bubble*, Bubble*)> onNeighborExplode;
 };
+
+bool operator== (const BubbleModel& bm0, const BubbleModel& bm1);
+bool operator!= (const BubbleModel& bm0, const BubbleModel& bm1);
 
 
 
@@ -153,6 +156,7 @@ public:
 	Ptr<BubbleModel> getModel() const;
 
 	bool hasExploited() const;
+	void explode();
 
 	void setSpeed(const vec2f& speed);
 	const vec2f& getSpeed() const;
@@ -164,7 +168,13 @@ public:
 	void translate(const float& dx, const float& dy);
 	void move(const vec2f& speed, const vec2f& acceleration = {});
 
+	BubbleColor getColor() const;
+	ColorType getColorType() const;
+
 	bool colorMatch(const Ptr<Bubble>& other) const;
+
+	AnimatedSprite* getSprite();
+	const AnimatedSprite* getSprite() const;
 
 
 	/* Model functions */
@@ -193,13 +203,25 @@ private:
 
 
 
-class BubbleModelManager : public Manager<BubbleModel>
+class BubbleModelManager : public Manager<BubbleModel>, Singleton
 {
-public:
+private:
 	BubbleModelManager();
 
+public:
 	Ptr<BubbleModel> createNew(const std::string& name);
+
+	friend Ptr<BubbleModel> RegisterBubbleModel(const std::string& name);
+	friend Ptr<BubbleModel> GetBubbleModel(const std::string& name);
+	friend bool HasBubbleModel(const std::string& name);
+
+private:
+	static BubbleModelManager _Instance;
 };
+
+Ptr<BubbleModel> RegisterBubbleModel(const std::string& name);
+Ptr<BubbleModel> GetBubbleModel(const std::string& name);
+bool HasBubbleModel(const std::string& name);
 
 
 

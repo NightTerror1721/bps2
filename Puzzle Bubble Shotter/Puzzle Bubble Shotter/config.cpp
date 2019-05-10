@@ -29,5 +29,10 @@ UniqueObject::UniqueObject() :
 
 const UniqueID& UniqueObject::uuid() const { return _id; }
 
-bool UniqueObject::operator== (const UniqueObject& uo) { return _id == uo._id; }
-bool UniqueObject::operator!= (const UniqueObject& uo) { return _id != uo._id; }
+bool UniqueObject::operator== (const UniqueObject& uo) const { return _id == uo._id; }
+bool UniqueObject::operator!= (const UniqueObject& uo) const { return _id != uo._id; }
+
+
+
+Singleton::Singleton() {}
+Singleton::~Singleton() {}

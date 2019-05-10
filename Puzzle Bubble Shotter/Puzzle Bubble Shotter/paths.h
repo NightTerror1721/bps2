@@ -44,4 +44,5 @@ namespace Path
 	const path_t Textures{ "data"_p << "textures" };
 	const path_t Sounds{ "data"_p << "audio" << "sounds" };
 	const path_t Musics{ "data"_p << "audio" << "musics" };
+	const path_t BubbleModels{ "data"_p << "bubble_models" };
 }
