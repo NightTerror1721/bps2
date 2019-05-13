@@ -128,6 +128,7 @@ BounceEdge BouncingBounds::check()
 
 Bubble::Bubble(const Ptr<BubbleModel>& model, TextureManager* texs) :
 	_model(model),
+	_destroyed(false),
 	_exploited(false),
 	_speed(),
 	_acceleration(),
@@ -146,7 +147,15 @@ Bubble::~Bubble() {}
 
 Ptr<BubbleModel> Bubble::getModel() const { return _model; }
 
-bool Bubble::hasExploited() const { return _exploited; }
+bool Bubble::hasDestroyed() const { return _destroyed; }
+
+void Bubble::destroy()
+{
+	//TODO: Implement
+	_destroyed = true;
+}
+
+bool Bubble::hasExploited() const { return _destroyed || _exploited; }
 
 void Bubble::explode()
 {
@@ -255,4 +264,9 @@ Ptr<Bubble> BubbleHeap::createNew(const std::string& modelName, TextureManager* 
 void BubbleHeap::destroy(Ptr<Bubble> bubble)
 {
 	free(bubble);
+}
+
+void BubbleHeap::clearDestroyeds()
+{
+	clear([](Bubble& bubble) -> bool { return bubble.hasDestroyed(); });
 }

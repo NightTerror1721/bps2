@@ -131,6 +131,7 @@ public:
 private:
 	Ptr<BubbleModel> _model;
 
+	bool _destroyed;
 	bool _exploited;
 
 	vec2f _speed;
@@ -154,6 +155,9 @@ public:
 	~Bubble();
 
 	Ptr<BubbleModel> getModel() const;
+
+	bool hasDestroyed() const;
+	void destroy();
 
 	bool hasExploited() const;
 	void explode();
@@ -237,5 +241,7 @@ public:
 	Ptr<Bubble> createNew(const std::string& modelName, TextureManager* const& textures, bool editorMode, const BubbleColor& color = BubbleColor::defaultColor());
 
 	void destroy(Ptr<Bubble> bubble);
+
+	void clearDestroyeds();
 };
 

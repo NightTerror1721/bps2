@@ -203,6 +203,54 @@ namespace
 			_size = 0;
 		}
 
+		void clear(std::function<bool(_Ty&)> criteria)
+		{
+			if (!_head)
+				return;
+
+			if (_head == _tail)
+			{
+				if (criteria(_head->data))
+				{
+					delete _head;
+					_head = nullptr;
+					_tail = nullptr;
+					_size = 0;
+				}
+			}
+			else
+			{
+				Node* current = _head;
+				while (current)
+				{
+					if (criteria(current->data))
+					{
+						Node* prev = current->prev;
+						Node* next = current->next;
+
+						if (current == _head)
+							_head = _head->next;
+						if (current == _tail)
+							_tail = _tail->prev;
+
+						prev->next = next;
+						next->prev = prev;
+						_size--;
+
+						delete current;
+						current = next;
+					}
+					else current = current->next;
+				}
+
+				if (!_size)
+				{
+					_head = nullptr;
+					_tail = nullptr;
+				}
+			}
+		}
+
 		void forEach(std::function<void(_Ty&)> action)
 		{
 			for (Node* current = _head; current; current = current->next)
@@ -302,6 +350,11 @@ public:
 	inline void clear()
 	{
 		_mem.clear();
+	}
+
+	inline void clear(std::function<bool(_Ty&)> criteria)
+	{
+		_mem.clear(criteria);
 	}
 
 	std::vector<ptr_t> find(std::function<bool(const _Ty&)> criteria)
