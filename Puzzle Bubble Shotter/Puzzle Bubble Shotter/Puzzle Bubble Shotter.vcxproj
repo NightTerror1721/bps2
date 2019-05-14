@@ -139,26 +139,34 @@
     <ClCompile Include="audio.cpp" />
     <ClCompile Include="bubbles.cpp" />
     <ClCompile Include="bub_board.cpp" />
+    <ClCompile Include="camera.cpp" />
+    <ClCompile Include="canvas.cpp" />
     <ClCompile Include="config.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="game_objs.cpp" />
+    <ClCompile Include="inputs.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="paths.cpp" />
     <ClCompile Include="py.cpp" />
+    <ClCompile Include="scenario.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="assets.h" />
     <ClInclude Include="audio.h" />
     <ClInclude Include="bubbles.h" />
     <ClInclude Include="bub_board.h" />
+    <ClInclude Include="camera.h" />
+    <ClInclude Include="canvas.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="game_objs.h" />
+    <ClInclude Include="inputs.h" />
     <ClInclude Include="iterators.h" />
     <ClInclude Include="manager.h" />
     <ClInclude Include="mem_alloc.h" />
     <ClInclude Include="paths.h" />
     <ClInclude Include="py.h" />
+    <ClInclude Include="scenario.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

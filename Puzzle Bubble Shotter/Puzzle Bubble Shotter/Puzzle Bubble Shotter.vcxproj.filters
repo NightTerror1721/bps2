@@ -37,6 +37,14 @@
       <UniqueIdentifier>{eac4b416-0517-4e69-a460-9f5139d43a8e}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Archivos de encabezado\Scenario">
+      <UniqueIdentifier>{aeb41588-895c-49e3-a701-d3aa8071dc42}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Archivos de origen\Scenario">
+      <UniqueIdentifier>{e77154c8-aeae-45e6-a8e7-72e537ecdc51}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -68,6 +76,18 @@
     </ClCompile>
     <ClCompile Include="bub_board.cpp">
       <Filter>Archivos de origen\Bubbles</Filter>
+    </ClCompile>
+    <ClCompile Include="inputs.cpp">
+      <Filter>Archivos de origen\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="scenario.cpp">
+      <Filter>Archivos de origen\Scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>Archivos de origen\Scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="canvas.cpp">
+      <Filter>Archivos de origen\Scenario</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -106,6 +126,18 @@
     </ClInclude>
     <ClInclude Include="iterators.h">
       <Filter>Archivos de encabezado\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="inputs.h">
+      <Filter>Archivos de encabezado\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="scenario.h">
+      <Filter>Archivos de encabezado\Scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Archivos de encabezado\Scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="canvas.h">
+      <Filter>Archivos de encabezado\Engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

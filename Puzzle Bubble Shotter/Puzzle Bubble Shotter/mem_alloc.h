@@ -379,3 +379,38 @@ public:
 	const_iterator end() const { return _mem.end(); }
 	const_iterator cend() const { return _mem.end(); }
 };
+
+template<class _PtrTy = void>
+class CustomAllocator
+{
+private:
+	_PtrTy* _alloc;
+
+public:
+	~CustomAllocator() { delete _alloc; }
+
+	template<class _Ty>
+	inline CustomAllocator& operator= (const _Ty& value) { *reinterpret_cast<_Ty*>(_alloc) = value; return *this; }
+
+	template<class _Ty>
+	inline CustomAllocator& operator= (_Ty&& value) { *reinterpret_cast<_Ty*>(_alloc) = value; return *this; }
+
+	template<class _Ty>
+	inline operator _Ty() { *reinterpret_cast<_Ty*>(_alloc); }
+
+	template<class _Ty, class _PtrTy = void, class... _Args>
+	friend CustomAllocator<_PtrTy> make_alloc(_Args&&... args);
+
+private:
+	CustomAllocator(_PtrTy* const& _Ptr) :
+		_alloc{ _Ptr }
+	{}
+}; 
+
+template<class _Ty, class _PtrTy = void, class... _Args>
+CustomAllocator<_PtrTy> make_alloc(_Args&&... args)
+{
+	return { reinterpret_cast<_PtrTy*>(new _Ty{ args... }) };
+}
+
+using UnknownAllocator = CustomAllocator<>;

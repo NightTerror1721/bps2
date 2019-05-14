@@ -118,7 +118,10 @@ void BubbleBoard::insertBubble(const u16& row, const u8& column, Ptr<Bubble> bub
 {
 	auto& cell =_rows[row][column];
 	if (cell)
+	{
 		cell->destroy();
+	}
+	else _bubblesCount++;
 	*cell = bubble;
 }
 
@@ -127,6 +130,7 @@ void BubbleBoard::destroyBubble(const u16& row, const u8& column)
 	auto& cell = _rows[row][column];
 	cell->destroy();
 	*cell = nullptr;
+	_bubblesCount--;
 }
 
 BubbleRow& BubbleBoard::operator[] (const u16& row) { return _rows[row]; }

@@ -8,6 +8,11 @@ GameObject::GameObject(const std::string& tag) :
 	_gc(nullptr)
 {}
 
+GameObject::~GameObject()
+{
+
+}
+
 const std::string& GameObject::tag() const { return _tag; }
 void GameObject::tag(const std::string& tag) { _tag = tag; }
 
@@ -15,6 +20,6 @@ bool GameObject::hasAttached() const { return !_gc; }
 
 void GameObject::draw(sf::RenderTarget* const& g) {}
 void GameObject::update(const delta_t& delta) {}
-void GameObject::dispatchEvent(const sf::Event& event) {}
+void GameObject::dispatchEvent(const InputEvent& event) {}
 
 GameController* GameObject::getGameController() { return _gc; }

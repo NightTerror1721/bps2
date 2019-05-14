@@ -4,6 +4,7 @@
 #include <SFML/Window/Event.hpp>
 
 #include "config.h"
+#include "inputs.h"
 
 class GameController;
 
@@ -15,6 +16,7 @@ private:
 
 public:
 	GameObject(const std::string& tag);
+	virtual ~GameObject();
 
 	const std::string& tag() const;
 	void tag(const std::string& tag);
@@ -23,7 +25,7 @@ public:
 
 	virtual void draw(sf::RenderTarget* const& g);
 	virtual void update(const delta_t& delta);
-	virtual void dispatchEvent(const sf::Event& event);
+	virtual void dispatchEvent(const InputEvent& event);
 
 	friend class GameController;
 

@@ -12,7 +12,7 @@
 namespace wstyle = sf::Style;
 
 
-class GameController
+class GameController : InputListener
 {
 private:
 	bool _close;
@@ -28,7 +28,9 @@ private:
 	sf::VideoMode _vmode;
 	u32 _wstyle;
 
-	MemoryAllocator<GameObject> _objs;
+	std::vector<GameObject*> _objs;
+
+	InputEventController _events;
 
 
 public:
@@ -45,20 +47,21 @@ public:
 
 	bool isFullscreen() const;
 
-	template<class... _Args>
-	Ptr<GameObject> createGameObject(_Args&&... args)
+	sf::RenderWindow* getWindow();
+	const sf::RenderWindow* getWindow() const;
+
+	template<class _Ty, class... _Args>
+	GameObject* createGameObject(_Args&&... args)
 	{
-		Ptr<GameObject> obj = _objs.create(args...);
+		GameObject* obj = new _Ty{ args... };
 		obj->_gc = this;
+		_objs.push_back(obj);
 		return obj;
 	}
 
-	void destroyGameObject(Ptr<GameObject> obj_ptr);
+	void destroyGameObject(GameObject* const& obj_ptr);
 
-	std::vector<Ptr<GameObject>> findGameObject(std::function<bool(const GameObject&)> criteria);
-
-	void forEachGameObject(std::function<void(GameObject&)> action);
-	void forEachGameObject(std::function<void(const GameObject&)> action) const;
+	void dispatchEvent(const InputEvent& event) override;
 
 private:
 	void loop();

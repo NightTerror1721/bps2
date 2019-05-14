@@ -1,8 +1,21 @@
 #include "engine.h"
 
 #include <SFML/OpenGL.hpp>
+#include <algorithm>
+
+template<class _Ty>
+constexpr void clear_ptr_vector(std::vector<_Ty*>& vec)
+{
+	auto it = vec.begin();
+	while (it != vec.end())
+	{
+		delete *it;
+		it = vec.erase(it);
+	}
+}
 
 GameController::GameController(const std::string& name) :
+	InputListener(),
 	_close(false),
 	_window(),
 	_py(),
@@ -12,9 +25,16 @@ GameController::GameController(const std::string& name) :
 	_name(name),
 	_vmode(640, 480),
 	_wstyle(wstyle::Default),
-	_objs()
-{}
-GameController::~GameController() {}
+	_objs(),
+	_events()
+{
+	_events.registerListener(this);
+}
+
+GameController::~GameController()
+{
+	clear_ptr_vector(_objs);
+}
 
 void GameController::start()
 {
@@ -59,12 +79,15 @@ void GameController::resetWindow()
 
 bool GameController::isFullscreen() const { return _wstyle & wstyle::Fullscreen; }
 
-void GameController::destroyGameObject(Ptr<GameObject> obj_ptr) { _objs.free(obj_ptr); }
+sf::RenderWindow* GameController::getWindow() { return &_window; }
+const sf::RenderWindow* GameController::getWindow() const { return &_window; }
 
-std::vector<Ptr<GameObject>> GameController::findGameObject(std::function<bool(const GameObject&)> criteria) { return _objs.find(criteria); }
-
-void GameController::forEachGameObject(std::function<void(GameObject&)> action) { _objs.forEach(action); }
-void GameController::forEachGameObject(std::function<void(const GameObject&)> action) const { _objs.forEach(action); }
+void GameController::destroyGameObject(GameObject* const& obj_ptr)
+{
+	auto it = std::find(_objs.begin(), _objs.end(), obj_ptr);
+	if (it != _objs.end())
+		delete *it;
+}
 
 
 void GameController::loop()
@@ -93,8 +116,8 @@ void GameController::init()
 void GameController::update(delta_t delta)
 {
 	if (!_close)
-		for (GameObject& obj : _objs)
-			obj.update(delta);
+		for (GameObject* obj : _objs)
+			obj->update(delta);
 }
 
 void GameController::render()
@@ -102,8 +125,8 @@ void GameController::render()
 	if (!_close)
 	{
 		_window.clear();
-		for (GameObject& obj : _objs)
-			obj.draw(&_window);
+		for (GameObject* obj : _objs)
+			obj->draw(&_window);
 		_window.display();
 	}
 }
@@ -120,8 +143,13 @@ void GameController::processEvents()
 				_close = true;
 				return;
 			}
-			for (GameObject& obj : _objs)
-				obj.dispatchEvent(event);
+			else _events.dispatchEvent(event);
 		}
 	}
+}
+
+void GameController::dispatchEvent(const InputEvent& event)
+{
+	for (GameObject* obj : _objs)
+		obj->dispatchEvent(event);
 }
