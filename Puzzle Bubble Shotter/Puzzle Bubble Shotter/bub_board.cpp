@@ -9,8 +9,8 @@ BubbleCell::BubbleCell() :
 	_column()
 {}
 
-const u16& BubbleCell::row() const { return _row; }
-const u8& BubbleCell::column() const { return _column; }
+const row_t& BubbleCell::row() const { return _row; }
+const column_t& BubbleCell::column() const { return _column; }
 
 bool BubbleCell::empty() const { return !_bubble; }
 bool BubbleCell::operator! () const { return !_bubble; }
@@ -37,14 +37,14 @@ BubbleRow::~BubbleRow()
 		delete[] _cells;
 }
 
-u8 BubbleRow::getColumnsCount() const { return _columns; }
-u16 BubbleRow::getRow() const { return _row; }
+column_t BubbleRow::getColumnsCount() const { return _columns; }
+row_t BubbleRow::getRow() const { return _row; }
 
 bool BubbleRow::isLarge() const { return is_large_row(_row); }
 bool BubbleRow::isSmall() const { return is_small_row(_row); }
 
-BubbleCell& BubbleRow::operator[] (const u8& column) { return _cells[column]; }
-const BubbleCell& BubbleRow::operator[] (const u8& column) const { return _cells[column]; }
+BubbleCell& BubbleRow::operator[] (const column_t& column) { return _cells[column]; }
+const BubbleCell& BubbleRow::operator[] (const column_t& column) const { return _cells[column]; }
 
 bool BubbleRow::operator! () const
 {
@@ -63,7 +63,7 @@ BubbleRow::operator bool() const
 	return true;
 }
 
-bool BubbleRow::validColumn(const u8& column) const { return column < _columns; }
+bool BubbleRow::validColumn(const column_t& column) const { return column < _columns; }
 
 u32 BubbleRow::count() const
 {
@@ -75,7 +75,7 @@ u32 BubbleRow::count() const
 	return amount;
 }
 
-void BubbleRow::initiate(const u16& row, const u8& columns)
+void BubbleRow::initiate(const row_t& row, const column_t& columns)
 {
 	auto cell = _cells;
 	_row = row;
@@ -108,13 +108,13 @@ BubbleRow::const_iterator BubbleRow::end() const { return { _cells, _columns, _c
 
 
 
-BubbleBoard::BubbleBoard(const u8& columns) :
+BubbleBoard::BubbleBoard(const column_t& columns) :
 	_rows(),
 	_columns(columns),
 	_bubblesCount()
 {}
 
-void BubbleBoard::insertBubble(const u16& row, const u8& column, Ptr<Bubble> bubble)
+void BubbleBoard::insertBubble(const row_t& row, const column_t& column, Ptr<Bubble> bubble)
 {
 	auto& cell =_rows[row][column];
 	if (cell)
@@ -125,7 +125,7 @@ void BubbleBoard::insertBubble(const u16& row, const u8& column, Ptr<Bubble> bub
 	*cell = bubble;
 }
 
-void BubbleBoard::destroyBubble(const u16& row, const u8& column)
+void BubbleBoard::destroyBubble(const row_t& row, const column_t& column)
 {
 	auto& cell = _rows[row][column];
 	cell->destroy();
@@ -133,8 +133,8 @@ void BubbleBoard::destroyBubble(const u16& row, const u8& column)
 	_bubblesCount--;
 }
 
-BubbleRow& BubbleBoard::operator[] (const u16& row) { return _rows[row]; }
-const BubbleRow& BubbleBoard::operator[] (const u16& row) const { return _rows[row]; }
+BubbleRow& BubbleBoard::operator[] (const row_t& row) { return _rows[row]; }
+const BubbleRow& BubbleBoard::operator[] (const row_t& row) const { return _rows[row]; }
 
 
 #define DELTA(value, delt) ((value) + (delt))
@@ -147,11 +147,11 @@ const BubbleRow& BubbleBoard::operator[] (const u16& row) const { return _rows[r
 }
 
 
-std::vector<const BubbleCell*> BubbleBoard::findNeighbors(const u16& row, const u8& column) const
+std::vector<const BubbleCell*> BubbleBoard::findNeighbors(const row_t& row, const column_t& column) const
 {
 	std::vector<const BubbleCell*> neis(6);
-	u16 rowsCount = static_cast<u16>(_rows.size());
-	const u8& columnsCount = _columns;
+	row_t rowsCount{ static_cast<u16>(_rows.size()) };
+	const column_t& columnsCount = _columns;
 	insert_nei(neis, rowsCount, columnsCount, _rows, row, column, 0, -1)
 	insert_nei(neis, rowsCount, columnsCount, _rows, row, column, 0, 1)
 
@@ -173,7 +173,7 @@ std::vector<const BubbleCell*> BubbleBoard::findNeighbors(const u16& row, const 
 	return std::move(neis);
 }
 
-void findConnectedAlg(const BubbleBoard* const& rows, std::vector<const BubbleCell*>& connected, std::set<const BubbleCell*>& visited, const Ptr<Bubble>& bub, const u16& row, const u8& column)
+void findConnectedAlg(const BubbleBoard* const& rows, std::vector<const BubbleCell*>& connected, std::set<const BubbleCell*>& visited, const Ptr<Bubble>& bub, const row_t& row, const column_t& column)
 {
 	std::vector<const BubbleCell*> neis = rows->findNeighbors(row, column);
 	if (!neis.empty())
@@ -194,7 +194,7 @@ void findConnectedAlg(const BubbleBoard* const& rows, std::vector<const BubbleCe
 	}
 }
 
-std::vector<const BubbleCell*> BubbleBoard::findConnected(const u16& row, const u8& column) const
+std::vector<const BubbleCell*> BubbleBoard::findConnected(const row_t& row, const column_t& column) const
 {
 	std::vector<const BubbleCell*> connected{ 6 };
 	std::set<const BubbleCell*> visited{};
@@ -216,10 +216,10 @@ std::vector<const BubbleCell*> BubbleBoard::findConnected(const u16& row, const 
 	return std::move(connected);
 }
 
-void BubbleBoard::forEachBubbleInRange(const u16& fromRow, const u16& toRow, std::function<void(Bubble*)> action)
+void BubbleBoard::forEachBubbleInRange(const row_t& fromRow, const row_t& toRow, std::function<void(Bubble*)> action)
 {
-	u16 from{ std::min(fromRow, toRow) };
-	u16 to{ std::max(fromRow, toRow) };
+	row_t from{ std::min(fromRow, toRow) };
+	row_t to{ std::max(fromRow, toRow) };
 
 	if (to < _rows.size())
 		for (; from <= to; from++)

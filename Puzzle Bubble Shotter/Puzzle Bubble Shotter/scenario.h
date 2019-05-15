@@ -27,7 +27,7 @@ private:
 	GameController* const _gc;
 
 	BubbleBoard _bubbles;
-	BoardCamera _bcam;
+	ScenarioCamera _bcam;
 
 public:
 	Scenario(GameController* const& gc, const ScenarioProperties& prop);

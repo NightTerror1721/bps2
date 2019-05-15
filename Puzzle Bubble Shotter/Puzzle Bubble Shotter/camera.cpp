@@ -1,29 +1,36 @@
 #include "camera.h"
 #include "bubbles.h"
+#include "engine.h"
 
 #define ROW_SIZE(row) static_cast<float>((row) * Bubble::HitboxHeight)
 
-BoardCamera::BoardCamera() :
-	View{ { 0, 0 }, { 1024, 1024 } },
+
+ScenarioCamera::ScenarioCamera() :
+	View{ { 0, 0 }, { static_cast<float>(ScenarioCamera::Width), static_cast<float>(ScenarioCamera::Height) } },
 	_row{ 0 }
 {}
 
-void BoardCamera::setRow(const u16& row)
+void ScenarioCamera::setRow(const row_t& row)
 {
 	_row = row;
 	setCenter({ 0, -ROW_SIZE(_row) });
 }
 
-const u16& BoardCamera::getRow() const
+const row_t& ScenarioCamera::getRow() const
 {
 	return _row;
 }
 
-void BoardCamera::increaseRow(const u16& amount)
+void ScenarioCamera::increaseRow(const row_t& amount)
 {
 	if (amount > 0)
 	{
 		_row += amount;
 		setCenter({ 0, -ROW_SIZE(_row) });
 	}
+}
+
+void ScenarioCamera::bind(GameController* const& gc)
+{
+	gc->getWindow()->setView(*this);
 }

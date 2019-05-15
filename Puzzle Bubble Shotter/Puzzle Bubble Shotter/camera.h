@@ -2,18 +2,25 @@
 
 #include <SFML/Graphics/View.hpp>
 
-#include "config.h"
+#include "bub_board.h"
 
-class BoardCamera : sf::View
+class GameController;
+
+class ScenarioCamera : sf::View
 {
 private:
-	u16 _row;
+	row_t _row;
 
 public:
-	BoardCamera();
+	ScenarioCamera();
 
-	void setRow(const u16& row);
-	const u16& getRow() const;
+	void setRow(const row_t& row);
+	const row_t& getRow() const;
 
-	void increaseRow(const u16& amount = 1);
+	void increaseRow(const row_t& amount = 1);
+
+	void bind(GameController* const& gc);
+
+	static constexpr u32 Width = 2304;
+	static constexpr u32 Height = 1296;
 };

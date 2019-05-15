@@ -1,5 +1,7 @@
 #include "scenario.h"
 
+#include <SFML/Graphics.hpp>
+
 Scenario::Scenario(GameController* const& gc, const ScenarioProperties& prop) :
 	_gc(gc),
 	_bubbles(prop.columns),
@@ -23,8 +25,6 @@ void Scenario::dispatchEvent(const InputEvent& event)
 
 void Scenario::drawBoardLines(sf::RenderTarget* const& g)
 {
-	sf::Vertex boardSquare[4]
-	{
-		{  }
-	};
+	
+	//sf::RectangleShape board{ {  }, {  } };
 }

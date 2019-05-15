@@ -10,17 +10,20 @@ class BubbleCell;
 class BubbleRow;
 class BubbleBoard;
 
+using row_t = LimitedValue<u32, 0, 0Xffffffffu>;
+using column_t = LimitedValue<u8, 8, 30u>;
+
 
 class BubbleCell
 {
 private:
 	Ptr<Bubble> _bubble;
-	u16 _row;
-	u8 _column;
+	row_t _row;
+	column_t _column;
 
 public:
-	const u16& row() const;
-	const u8& column() const;
+	const row_t& row() const;
+	const column_t& column() const;
 
 	bool empty() const;
 	bool operator! () const;
@@ -55,25 +58,25 @@ public:
 	using const_iterator = const ArrayForwardIterator<BubbleCell>;
 
 private:
-	u16 _row;
-	u8 _columns;
+	row_t _row;
+	column_t _columns;
 	BubbleCell* _cells;
 
 public:
 	~BubbleRow();
 
-	u8 getColumnsCount() const;
-	u16 getRow() const;
+	column_t getColumnsCount() const;
+	row_t getRow() const;
 
 	bool isLarge() const;
 	bool isSmall() const;
 
-	const BubbleCell& operator[] (const u8& column) const;
+	const BubbleCell& operator[] (const column_t& column) const;
 
 	bool operator! () const;
 	operator bool() const;
 
-	bool validColumn(const u8& column) const;
+	bool validColumn(const column_t& column) const;
 
 	u32 count() const;
 	
@@ -88,10 +91,10 @@ public:
 private:
 	BubbleRow();
 
-	void initiate(const u16& row, const u8& columns);
+	void initiate(const row_t& row, const column_t& columns);
 	bool isInitiated() const;
 
-	BubbleCell& operator[] (const u8& column);
+	BubbleCell& operator[] (const column_t& column);
 
 	void forEachBubble(std::function<void(Bubble*)>& action);
 };
@@ -100,25 +103,28 @@ private:
 class BubbleBoard
 {
 	std::vector<BubbleRow> _rows;
-	u8 _columns;
+	column_t _columns;
 	u32 _bubblesCount;
 
 public:
-	BubbleBoard(const u8& columns);
+	BubbleBoard(const column_t& columns);
 
-	void insertBubble(const u16& row, const u8& column, Ptr<Bubble> bubble);
+	column_t getColumnCount() const;
+	row_t getRowCount() const;
 
-	void destroyBubble(const u16& row, const u8& column);
+	void insertBubble(const row_t& row, const column_t& column, Ptr<Bubble> bubble);
 
-	BubbleRow& operator[] (const u16& row);
+	void destroyBubble(const row_t& row, const column_t& column);
 
-	std::vector<const BubbleCell*> findNeighbors(const u16& row, const u8& column) const;
+	BubbleRow& operator[] (const row_t& row);
 
-	std::vector<const BubbleCell*> findConnected(const u16& row, const u8& column) const;
+	std::vector<const BubbleCell*> findNeighbors(const row_t& row, const column_t& column) const;
 
-	void forEachBubbleInRange(const u16& fromRow, const u16& toRow, std::function<void(Bubble*)> action);
+	std::vector<const BubbleCell*> findConnected(const row_t& row, const column_t& column) const;
+
+	void forEachBubbleInRange(const row_t& fromRow, const row_t& toRow, std::function<void(Bubble*)> action);
 
 
 private:
-	const BubbleRow& operator[] (const u16& row) const;
+	const BubbleRow& operator[] (const row_t& row) const;
 };
