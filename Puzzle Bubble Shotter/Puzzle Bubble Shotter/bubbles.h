@@ -123,9 +123,9 @@ class Bubble : public UniqueObject, public sf::Transformable
 {
 	/* STATIC ELEMENTS */
 public:
-	static constexpr u32 Radius = 32;
-	static constexpr u32 HitboxWith = 64;
-	static constexpr u32 HitboxHeight = 54;
+	static constexpr u32 HitboxWith = 60;
+	static constexpr u32 HitboxHeight = static_cast<u32>(Bubble::HitboxWith * 26.f / 30.f);
+	static constexpr u32 Radius = Bubble::HitboxWith / 2;
 
 	/* NORMAL ELEMENTS */
 private:

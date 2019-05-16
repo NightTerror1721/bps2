@@ -95,7 +95,7 @@ private:
 	Singleton& operator= (Singleton&&);
 };
 
-#define RANGE_LIMIT(minValue, maxValue, value) __min((minValue), (__max((maxValue), (value))))
+#define RANGE_LIMIT(minValue, maxValue, value) __min((maxValue), (__max((minValue), (value))))
 
 template<class _Base, _Base _Min, _Base _Max>
 class LimitedValue
@@ -177,6 +177,8 @@ public:
 
 	static constexpr _Base min() { return _Min; }
 	static constexpr _Base max() { return _Max; }
+	static constexpr _Base base(const LimitedValue& value) { return value._value; }
+	static constexpr _Base filter(const _Base& value) { return static_cast<_Base>(LimitedValue{ value }); }
 
 	template<class _Base, _Base _Min, _Base _Max>
 	friend inline _Base operator+ (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value);

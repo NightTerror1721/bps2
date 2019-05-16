@@ -3,6 +3,8 @@
 #include "bubbles.h"
 #include "iterators.h"
 
+#include "scenario_props.h"
+
 #define is_large_row(row_idx) (((row_idx) % 2) != 0)
 #define is_small_row(row_idx) (((row_idx) % 2) == 0)
 
@@ -63,6 +65,7 @@ private:
 	BubbleCell* _cells;
 
 public:
+	BubbleRow();
 	~BubbleRow();
 
 	column_t getColumnsCount() const;
@@ -89,8 +92,6 @@ public:
 	friend class BubbleBoard;
 
 private:
-	BubbleRow();
-
 	void initiate(const row_t& row, const column_t& columns);
 	bool isInitiated() const;
 
@@ -102,6 +103,7 @@ private:
 
 class BubbleBoard
 {
+private:
 	std::vector<BubbleRow> _rows;
 	column_t _columns;
 	u32 _bubblesCount;
@@ -116,6 +118,10 @@ public:
 
 	void destroyBubble(const row_t& row, const column_t& column);
 
+	void addNewRow(BubbleHeap* const& bheap, TextureManager* const& tm, const BinBubbleRow& binRow, bool editorMode);
+
+	void addRows(BubbleHeap* const& bheap, TextureManager* const& tm, const ScenarioProperties& props, bool editorMode);
+
 	BubbleRow& operator[] (const row_t& row);
 
 	std::vector<const BubbleCell*> findNeighbors(const row_t& row, const column_t& column) const;
@@ -127,4 +133,7 @@ public:
 
 private:
 	const BubbleRow& operator[] (const row_t& row) const;
+
+public:
+	static constexpr u32 VisibleRows = 14;
 };

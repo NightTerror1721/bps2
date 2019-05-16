@@ -114,6 +114,9 @@ BubbleBoard::BubbleBoard(const column_t& columns) :
 	_bubblesCount()
 {}
 
+column_t BubbleBoard::getColumnCount() const { return _columns; }
+row_t BubbleBoard::getRowCount() const { return { static_cast<u32>(_rows.size()) }; }
+
 void BubbleBoard::insertBubble(const row_t& row, const column_t& column, Ptr<Bubble> bubble)
 {
 	auto& cell =_rows[row][column];
@@ -131,6 +134,40 @@ void BubbleBoard::destroyBubble(const row_t& row, const column_t& column)
 	cell->destroy();
 	*cell = nullptr;
 	_bubblesCount--;
+}
+
+void BubbleBoard::addNewRow(BubbleHeap* const& bheap, TextureManager* const& tm, const BinBubbleRow& binRow, bool editorMode)
+{
+	const u32 rowid = _rows.size();
+	const u8 cols = is_small_row(rowid) ? static_cast<u8>(_columns) - 1 : static_cast<u8>(_columns);
+	BubbleRow& row = _rows.emplace_back();
+	row.initiate(rowid, _columns);
+	for (u8 i = 0; i < cols && i < binRow.size(); i++)
+	{
+		const BinBubble& binbub = binRow[i];
+		if (!binbub.model.empty())
+			*row[i] = bheap->createNew(binbub.model, tm, editorMode, binbub.color);
+		else *row[i] = nullptr;
+	}
+}
+
+void BubbleBoard::addRows(BubbleHeap* const& bheap, TextureManager* const& tm, const ScenarioProperties& props, bool editorMode)
+{
+	u32 rowid = _rows.size();
+	for (const BinBubbleRow& binRow : props.getBubbleRows())
+	{
+		const u8 cols = is_small_row(rowid) ? static_cast<u8>(_columns) - 1 : static_cast<u8>(_columns);
+		BubbleRow& row = _rows.emplace_back();
+		row.initiate(rowid, _columns);
+		for (u8 i = 0; i < cols && i < binRow.size(); i++)
+		{
+			const BinBubble& binbub = binRow[i];
+			if (!binbub.model.empty())
+				*row[i] = bheap->createNew(binbub.model, tm, editorMode, binbub.color);
+			else *row[i] = nullptr;
+		}
+		rowid++;
+	}
 }
 
 BubbleRow& BubbleBoard::operator[] (const row_t& row) { return _rows[row]; }

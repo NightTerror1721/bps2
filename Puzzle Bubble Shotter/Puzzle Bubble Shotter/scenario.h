@@ -3,23 +3,9 @@
 #include "camera.h"
 #include "bub_board.h"
 #include "inputs.h"
+#include "scenario_props.h"
 
 class GameController;
-
-enum class PlayerId
-{
-	Player_One,
-	Player_Two,
-	Single = Player_One
-};
-
-struct ScenarioProperties
-{
-	PlayerId player;
-	u8 columns;
-
-
-};
 
 class Scenario
 {
@@ -27,7 +13,7 @@ private:
 	GameController* const _gc;
 
 	BubbleBoard _bubbles;
-	ScenarioCamera _bcam;
+	ScenarioCamera _cam;
 
 public:
 	Scenario(GameController* const& gc, const ScenarioProperties& prop);
@@ -37,5 +23,8 @@ public:
 	void dispatchEvent(const InputEvent& event);
 
 private:
-	void drawBoardLines(sf::RenderTarget* const& g);
+	void init(const ScenarioProperties& prop);
+	void drawBoardLines(sf::RenderTarget* const& g, const bool& grid = false);
+
+	sf::FloatRect computeBoardBounds() const;
 };

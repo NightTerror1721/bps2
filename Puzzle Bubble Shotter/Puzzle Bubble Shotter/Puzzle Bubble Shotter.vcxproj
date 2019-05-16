@@ -140,7 +140,6 @@
     <ClCompile Include="bubbles.cpp" />
     <ClCompile Include="bub_board.cpp" />
     <ClCompile Include="camera.cpp" />
-    <ClCompile Include="canvas.cpp" />
     <ClCompile Include="config.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="game_objs.cpp" />
@@ -148,7 +147,9 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="paths.cpp" />
     <ClCompile Include="py.cpp" />
+    <ClCompile Include="rng.cpp" />
     <ClCompile Include="scenario.cpp" />
+    <ClCompile Include="scenario_props.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="assets.h" />
@@ -166,7 +167,9 @@
     <ClInclude Include="mem_alloc.h" />
     <ClInclude Include="paths.h" />
     <ClInclude Include="py.h" />
+    <ClInclude Include="rng.h" />
     <ClInclude Include="scenario.h" />
+    <ClInclude Include="scenario_props.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -23,7 +23,7 @@ GameController::GameController(const std::string& name) :
 	_phAccumulator(),
 	_phUps(sf::seconds(1.f / 60.f)),
 	_name(name),
-	_vmode(640, 480),
+	_vmode(1280, 720),
 	_wstyle(wstyle::Default),
 	_objs(),
 	_events()

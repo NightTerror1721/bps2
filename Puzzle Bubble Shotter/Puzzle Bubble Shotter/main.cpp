@@ -3,8 +3,7 @@
 #include "mem_alloc.h"
 #include "engine.h"
 
-#include "assets.h"
-#include "bubbles.h"
+#include "scenario.h"
 
 #include "paths.h"
 
@@ -12,12 +11,12 @@
 class TestCanvas : public GameObject
 {
 private:
-	GameController* _gc;
+	Scenario _sc;
 
 public:
-	TestCanvas(GameController* const & gc) :
+	TestCanvas(GameController* const & gc, const ScenarioProperties& props) :
 		GameObject("Test Canvas"),
-		_gc(gc)
+		_sc{ gc, props }
 	{}
 
 	~TestCanvas()
@@ -25,19 +24,19 @@ public:
 		std::cout << "fe" << std::endl;
 	}
 
+	void update(const delta_t& delta)
+	{
+		_sc.update(delta);
+	}
+
+	void dispatchEvent(const InputEvent& event)
+	{
+		_sc.dispatchEvent(event);
+	}
+
 	void draw(sf::RenderTarget* const& g) override
 	{
-		sf::View view = _gc->getWindow()->getDefaultView();
-		view.zoom(2.f);
-		_gc->getWindow()->setView(view);
-
-		sf::RectangleShape square{ { 100, 100 } };
-		square.setFillColor(sf::Color::Blue);
-		square.setPosition(-200, -100);
-
-		g->draw(square);
-
-		_gc->getWindow()->setView(_gc->getWindow()->getDefaultView());
+		_sc.draw(g);
 	}
 };
 
@@ -47,7 +46,11 @@ int main(int argc, char** argv)
 
 	GameController gc("Puzzle Bubble Shooter");
 
-	gc.createGameObject<TestCanvas>(&gc);
+	ScenarioProperties props{};
+	props.setColumns(20);
+	props.setPlayerId(PlayerId::Single);
+
+	gc.createGameObject<TestCanvas>(&gc, props);
 
 
 	TextureManager tm{};
