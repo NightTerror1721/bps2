@@ -51,9 +51,9 @@ public:
 	const sf::RenderWindow* getWindow() const;
 
 	template<class _Ty, class... _Args>
-	GameObject* createGameObject(_Args&&... args)
+	_Ty* createGameObject(_Args&&... args)
 	{
-		GameObject* obj = new _Ty{ args... };
+		_Ty* obj = new _Ty{ args... };
 		obj->_gc = this;
 		_objs.push_back(obj);
 		return obj;

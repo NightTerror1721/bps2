@@ -313,6 +313,15 @@ public:
 	inline _Ty* operator& () { return &_alloc->data; }
 	inline const _Ty* operator& () const { return &_alloc->data; }
 
+	static inline void free(Ptr& ptr)
+	{
+		if (ptr._alloc)
+		{
+			ptr._alloc->_list->destroy(ptr._alloc);
+			ptr._alloc = nullptr;
+		}
+	}
+
 	template<class _Ty> friend class MemoryAllocator;
 
 private:

@@ -180,6 +180,9 @@ public:
 	AnimatedSprite* getSprite();
 	const AnimatedSprite* getSprite() const;
 
+	void draw(sf::RenderTarget* const& g);
+	void update(const delta_t& delta);
+
 
 	/* Model functions */
 	int8 getResistence() const;
@@ -232,11 +235,8 @@ bool HasBubbleModel(const std::string& name);
 
 class BubbleHeap : MemoryAllocator<Bubble>
 {
-private:
-	BubbleModelManager* const _models;
-
 public:
-	BubbleHeap(BubbleModelManager* const& models);
+	BubbleHeap();
 
 	Ptr<Bubble> createNew(const std::string& modelName, TextureManager* const& textures, bool editorMode, const BubbleColor& color = BubbleColor::defaultColor());
 

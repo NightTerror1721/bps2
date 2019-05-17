@@ -12,7 +12,7 @@ BinBubbleRow::BinBubbleRow(const std::vector<BinBubble>& bubs) :
 {}
 
 BinBubbleRow::BinBubbleRow(const u8& columns) :
-	_bubbles{ column_t::filter(columns) }
+	_bubbles{ columns }
 {}
 
 BinBubbleRow& BinBubbleRow::operator= (const std::vector<BinBubble>& bubs) { _bubbles = bubs; return *this; }
@@ -30,7 +30,7 @@ void BinBubbleRow::checkColumns(const u8& columns)
 
 void BinBubbleRow::setBubble(const u8& column, const BinBubble& bub)
 {
-	u8 col = column_t::filter(column);
+	u8 col = column;
 	if (col >= _bubbles.size())
 		return;
 
@@ -45,7 +45,7 @@ void BinBubbleRow::setBubble(const u8& column, const BinBubble& bub)
 
 ScenarioProperties::ScenarioProperties() :
 	_player{ PlayerId::Single },
-	_columns{ column_t::min() },
+	_columns{ 8 },
 	_bubbleRows{},
 	_hideType{ HideRowsType::None },
 	_availableColors{ 0xff },
@@ -57,7 +57,7 @@ const PlayerId& ScenarioProperties::getPlayerId() const { return _player; }
 
 void ScenarioProperties::setColumns(const u8& columns)
 {
-	_columns = column_t::filter(columns);
+	_columns = columns;
 	for (BinBubbleRow& row : _bubbleRows)
 		row.checkColumns(_columns);
 }

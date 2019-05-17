@@ -199,6 +199,17 @@ bool Bubble::colorMatch(const Ptr<Bubble>& other) const
 AnimatedSprite* Bubble::getSprite() { return &_sprite; }
 const AnimatedSprite* Bubble::getSprite() const { return &_sprite; }
 
+void Bubble::draw(sf::RenderTarget* const& g)
+{
+
+}
+
+void Bubble::update(const delta_t& delta)
+{
+
+}
+
+
 
 /* Model functions */
 int8 Bubble::getResistence() const { return _model->resistence; }
@@ -244,17 +255,16 @@ bool HasBubbleModel(const std::string& name) { return BubbleModelManager::_Insta
 
 
 
-BubbleHeap::BubbleHeap(BubbleModelManager* const& models) :
-	MemoryAllocator(),
-	_models(models)
+BubbleHeap::BubbleHeap() :
+	MemoryAllocator()
 {}
 
 Ptr<Bubble> BubbleHeap::createNew(const std::string& modelName, TextureManager* const& textures, bool editorMode, const BubbleColor& color)
 {
-	if (!_models->has(modelName))
+	if (!HasBubbleModel(modelName))
 		return nullptr;
 
-	auto model = _models->get(modelName);
+	auto model = GetBubbleModel(modelName);
 	auto bubble = malloc(model, textures);
 	
 	model->init(&bubble, color, editorMode);

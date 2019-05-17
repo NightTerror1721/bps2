@@ -10,16 +10,16 @@
 
 class TestCanvas : public GameObject
 {
-private:
+public:
 	Scenario _sc;
 
 public:
-	TestCanvas(GameController* const & gc, const ScenarioProperties& props) :
+	TestCanvas(GameController* const & gc, TextureManager* const& tm, const ScenarioProperties& props) :
 		GameObject("Test Canvas"),
-		_sc{ gc, props }
+		_sc{ gc, tm, props }
 	{}
 
-	~TestCanvas()
+	~TestCanvas() override
 	{
 		std::cout << "fe" << std::endl;
 	}
@@ -43,19 +43,8 @@ public:
 
 int main(int argc, char** argv)
 {
-
 	GameController gc("Puzzle Bubble Shooter");
-
-	ScenarioProperties props{};
-	props.setColumns(20);
-	props.setPlayerId(PlayerId::Single);
-
-	gc.createGameObject<TestCanvas>(&gc, props);
-
-
 	TextureManager tm{};
-	
-
 
 	pylib::bindTextureManager(&tm);
 
@@ -65,6 +54,20 @@ int main(int argc, char** argv)
 	
 	if (model)
 		std::cout << model->name << std::endl;
+
+
+
+	ScenarioProperties props{};
+	props.setColumns(20);
+	props.setPlayerId(PlayerId::Single);
+
+	for (u32 i = 0; i < BubbleBoard::VisibleRows; i++)
+		props.addNewBubbleRow();
+
+	props.setNewBubbleToRow(13, 0, "ColorBubble", BubbleColor::Green);
+
+	gc.createGameObject<TestCanvas>(&gc, &tm, props);
+
 
 
 	gc.start();

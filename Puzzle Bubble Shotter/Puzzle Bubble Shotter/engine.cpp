@@ -4,7 +4,7 @@
 #include <algorithm>
 
 template<class _Ty>
-constexpr void clear_ptr_vector(std::vector<_Ty*>& vec)
+void clear_ptr_vector(std::vector<_Ty*>& vec)
 {
 	auto it = vec.begin();
 	while (it != vec.end())
