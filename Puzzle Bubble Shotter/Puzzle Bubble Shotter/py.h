@@ -21,7 +21,7 @@ public:
 	PyInterpreter();
 };
 
-#define __BINDED_PTR(type) namespace { type* _##type{ nullptr }; } \
+/*#define __BINDED_PTR(type) namespace { type* _##type{ nullptr }; } \
 namespace pylib { \
 inline void bind##type (type* const& ptr) { _##type = ptr; } \
 inline void unbind##type () { _##type = nullptr; } \
@@ -29,15 +29,24 @@ inline void unbind##type () { _##type = nullptr; } \
 
 
 __BINDED_PTR(TextureManager)
-__BINDED_PTR(BubbleHeap)
+__BINDED_PTR(BubbleHeap)*/
 
-
-#undef __BINDED_PTR
-
+/* Bindable pointers */
+namespace
+{
+	extern TextureManager* _TextureManager;
+	extern BubbleHeap* _BubbleHeap;
+}
 
 namespace pylib
 {
 	py::object executePythonScript(const std::string& filepath);
+
+	void bindTextureManager(TextureManager* const& ptr);
+	void unbindTextureManager();
+
+	void bindBubbleHeap(BubbleHeap* const& ptr);
+	void unbindBubbleHeap();
 }
 
 #define PY(name) __py__##name

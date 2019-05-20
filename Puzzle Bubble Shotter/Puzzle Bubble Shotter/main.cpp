@@ -65,6 +65,9 @@ int main(int argc, char** argv)
 		props.addNewBubbleRow();
 
 	props.setNewBubbleToRow(13, 0, "ColorBubble", BubbleColor::Green);
+	props.setNewBubbleToRow(13, 1, "ColorBubble", BubbleColor::Blue);
+	props.setNewBubbleToRow(13, 2, "ColorBubble", BubbleColor::Gray);
+	props.setNewBubbleToRow(12, 1, "ColorBubble", BubbleColor::Red);
 
 	gc.createGameObject<TestCanvas>(&gc, &tm, props);
 

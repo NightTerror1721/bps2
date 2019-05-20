@@ -135,6 +135,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="arrow.cpp" />
     <ClCompile Include="assets.cpp" />
     <ClCompile Include="audio.cpp" />
     <ClCompile Include="bubbles.cpp" />
@@ -152,6 +153,7 @@
     <ClCompile Include="scenario_props.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="arrow.h" />
     <ClInclude Include="assets.h" />
     <ClInclude Include="audio.h" />
     <ClInclude Include="bubbles.h" />

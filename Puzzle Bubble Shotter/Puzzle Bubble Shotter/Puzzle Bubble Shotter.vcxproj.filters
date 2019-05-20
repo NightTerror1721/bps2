@@ -92,6 +92,9 @@
     <ClCompile Include="scenario_props.cpp">
       <Filter>Archivos de origen\Scenario</Filter>
     </ClCompile>
+    <ClCompile Include="arrow.cpp">
+      <Filter>Archivos de origen\Scenario</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="py.h">
@@ -146,6 +149,9 @@
       <Filter>Archivos de encabezado\Utils</Filter>
     </ClInclude>
     <ClInclude Include="scenario_props.h">
+      <Filter>Archivos de encabezado\Scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="arrow.h">
       <Filter>Archivos de encabezado\Scenario</Filter>
     </ClInclude>
   </ItemGroup>

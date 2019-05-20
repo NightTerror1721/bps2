@@ -85,7 +85,7 @@ u32 BubbleRow::count() const
 	u32 amount = 0;
 	BubbleCell* cell = _cells;
 	for (u8 i = 0; i < _columns; i++)
-		if (!(cell++)->empty())
+		if (*(cell++))
 			amount++;
 	return amount;
 }
@@ -97,7 +97,7 @@ void BubbleRow::initiate(const row_t& row, const column_t& columns)
 	if (_cells)
 		delete[] _cells;
 	_cells = new BubbleCell[_columns];
-	auto cell = _cells;
+	BubbleCell* cell = _cells;
 	for (u8 i = 0; i < _columns; i++, cell++)
 	{
 		cell->_row = _row;
@@ -119,18 +119,20 @@ void BubbleRow::forEachBubble(std::function<void(Bubble*)>& action)
 
 void BubbleRow::draw(sf::RenderTarget* const& g)
 {
-	auto cell = _cells;
+	BubbleCell* cell = _cells;
 	for (u8 i = 0; i < _columns; i++, cell++)
-		if (cell)
+	{
+		if (*cell)
 			(**cell)->draw(g);
+	}
 
 }
 
 void BubbleRow::update(const delta_t& delta)
 {
-	auto cell = _cells;
+	BubbleCell* cell = _cells;
 	for (u8 i = 0; i < _columns; i++, cell++)
-		if (cell)
+		if (*cell)
 			(**cell)->update(delta);
 }
 
@@ -184,6 +186,12 @@ void BubbleBoard::destroyBubble(const row_t& row, const column_t& column)
 	_bubblesCount--;
 }
 
+void BubbleBoard::destroyAll()
+{
+	_rows.clear();
+	_bubblesCount = 0;
+}
+
 void BubbleBoard::addNewRow(BubbleHeap* const& bheap, TextureManager* const& tm, const BinBubbleRow& binRow, bool editorMode)
 {
 	const u32 rowid = _rows.size();
@@ -201,6 +209,7 @@ void BubbleBoard::addNewRow(BubbleHeap* const& bheap, TextureManager* const& tm,
 			{
 				*row[i] = bub;
 				situateBubble(bub, rowid, i);
+				_bubblesCount++;
 			}
 			else *row[i] = nullptr;
 		}
@@ -227,6 +236,7 @@ void BubbleBoard::addRows(BubbleHeap* const& bheap, TextureManager* const& tm, c
 				{
 					*row[i] = bub;
 					situateBubble(bub, rowid, i);
+					_bubblesCount++;
 				}
 				else *row[i] = nullptr;
 			}

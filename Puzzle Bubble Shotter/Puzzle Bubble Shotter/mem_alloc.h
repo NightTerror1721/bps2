@@ -181,8 +181,10 @@ namespace
 				if (current == _tail)
 					_tail = _tail->prev;
 
-				prev->next = next;
-				next->prev = prev;
+				if(prev)
+					prev->next = next;
+				if(next)
+					next->prev = prev;
 				_size--;
 
 				delete current;

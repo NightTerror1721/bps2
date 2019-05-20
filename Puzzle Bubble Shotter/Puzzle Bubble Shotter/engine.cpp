@@ -96,12 +96,15 @@ void GameController::loop()
 	{
 		processEvents();
 
+		sf::Time delta = _deltaClock.getElapsedTime();
+		_phAccumulator += delta;
+
 		while (_phAccumulator > _phUps)
 		{
-			delta_t delta = _deltaClock.getElapsedTime().asSeconds();
 			_phAccumulator -= _phUps;
 			_deltaClock.restart();
-			update(delta);
+			update(delta.asSeconds());
+			delta = _deltaClock.getElapsedTime();
 		}
 
 		render();

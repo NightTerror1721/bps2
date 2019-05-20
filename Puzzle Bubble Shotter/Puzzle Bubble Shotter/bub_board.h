@@ -135,6 +135,8 @@ public:
 
 	void destroyBubble(const row_t& row, const column_t& column);
 
+	void destroyAll();
+
 	void addNewRow(BubbleHeap* const& bheap, TextureManager* const& tm, const BinBubbleRow& binRow, bool editorMode);
 
 	void addRows(BubbleHeap* const& bheap, TextureManager* const& tm, const ScenarioProperties& props, bool editorMode);

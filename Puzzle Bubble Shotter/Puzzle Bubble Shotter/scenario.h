@@ -39,8 +39,10 @@ public:
 
 private:
 	void init(const ScenarioProperties& prop);
-	void drawBoardLines(sf::RenderTarget* const& g, const bool& grid = false);
 
+	void updateBubbles(const delta_t& delta);
+
+	void drawBoardLines(sf::RenderTarget* const& g, const bool& grid = false);
 	void drawBubbles(sf::RenderTarget* const& g);
 
 	sf::FloatRect computeBoardBounds() const;

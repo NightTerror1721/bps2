@@ -18,12 +18,16 @@ Scenario::Scenario(GameController* const& gc, TextureManager* const& tm, const S
 
 Scenario::~Scenario()
 {
-
+	_bubbles.destroyAll();
 }
 
 void Scenario::init(const ScenarioProperties& prop)
 {
+	pylib::bindTextureManager(_tm);
+
 	_bubbles.addRows(&_bheap, _tm, prop, false);
+
+	pylib::unbindTextureManager();
 }
 
 void Scenario::draw(sf::RenderTarget* const& g)
@@ -38,8 +42,24 @@ void Scenario::draw(sf::RenderTarget* const& g)
 
 void Scenario::update(const delta_t& delta)
 {
+	pylib::bindTextureManager(_tm);
 
+	updateBubbles(delta);
+
+	_bheap.clearDestroyeds();
+
+	pylib::unbindTextureManager();
 }
+
+
+void Scenario::updateBubbles(const delta_t& delta)
+{
+	_bubbles.update(delta);
+}
+
+
+
+
 
 void Scenario::dispatchEvent(const InputEvent& event)
 {

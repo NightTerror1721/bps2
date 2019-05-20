@@ -1,5 +1,6 @@
 #include "py.h"
 
+#include <pybind11/stl.h>
 #include <pybind11/operators.h>
 #include <pybind11/functional.h>
 
@@ -21,6 +22,12 @@ PyInterpreter::PyInterpreter() :
 	_py_int()
 {}
 
+namespace
+{
+	TextureManager* _TextureManager{ nullptr };
+	BubbleHeap* _BubbleHeap{ nullptr };
+}
+
 py::object pylib::executePythonScript(const std::string& filepath)
 {
 	try
@@ -33,6 +40,12 @@ py::object pylib::executePythonScript(const std::string& filepath)
 		return py::none();
 	}
 }
+
+void pylib::bindTextureManager(TextureManager* const& ptr) { _TextureManager = ptr; }
+void pylib::unbindTextureManager() { _TextureManager = nullptr; }
+
+void pylib::bindBubbleHeap(BubbleHeap* const& ptr) { _BubbleHeap = ptr; }
+void pylib::unbindBubbleHeap() { _BubbleHeap = nullptr; }
 
 
 /* PY FUNCTIONS */
@@ -143,6 +156,14 @@ PYBIND11_EMBEDDED_MODULE(PBS_bubbles, m) {
 	/* AnimatedSprite */
 	py::class_<AnimatedSprite> as{ m, "AnimatedSprite" };
 
+	as.def("setTexture", [](AnimatedSprite* self, const std::string& textureTag) {
+		IF_BINDED(TextureManager, texs)
+		{
+			if (texs->has(textureTag))
+				self->setTexture(*texs->get(textureTag));
+		}
+	});
+
 	as.def("setFrameDimensions", &AnimatedSprite::setFrameDimensions);
 	as.def("setFrameCount", &AnimatedSprite::setFrameCount);
 
@@ -166,6 +187,9 @@ PYBIND11_EMBEDDED_MODULE(PBS_bubbles, m) {
 
 	as.def("getCurrentFrame", &AnimatedSprite::getCurrentFrame);
 	as.def("getExactCurrentFrame", &AnimatedSprite::getExactCurrentFrame);
+
+	as.def("setFrameSpeed", &AnimatedSprite::setFrameSpeed);
+	as.def("getFrameSpeed", &AnimatedSprite::getFrameSpeed);
 
 	as.def("rewind", &AnimatedSprite::rewind);
 	as.def("fastForward", &AnimatedSprite::fastForward);
@@ -191,6 +215,9 @@ PYBIND11_EMBEDDED_MODULE(PBS_bubbles, m) {
 	bc.def_property_readonly("id", [](BubbleColor* self) { return self->id(); });
 	bc.def_property_readonly("name", [](BubbleColor* self) { return self->name(); });
 
+	bc.def_static("count", &BubbleColor::count);
+	bc.def_static("all", &BubbleColor::all);
+
 
 
 	/* ColorType */
@@ -214,6 +241,7 @@ PYBIND11_EMBEDDED_MODULE(PBS_bubbles, m) {
 	b.def("getSpeed", &Bubble::getSpeed);
 	b.def("getAcceleration", &Bubble::getAcceleration);
 
+	b.def("setColor", &Bubble::setColor);
 	b.def("getColor", &Bubble::getColor);
 	b.def("getColorType", &Bubble::getColorType);
 	b.def("colorMatch", &Bubble::colorMatch);
@@ -221,7 +249,8 @@ PYBIND11_EMBEDDED_MODULE(PBS_bubbles, m) {
 	b.def("isMulticolor", [](Bubble* self) { return self->getColorType() == ColorType::Multicolor; });
 	b.def("isColorless", [](Bubble* self) { return self->getColorType() == ColorType::Colorless; });
 
-	b.def("getSprite", static_cast<AnimatedSprite* (Bubble::*)()>(&Bubble::getSprite));
+	b.def("getSprite", static_cast<AnimatedSprite* (Bubble::*)()>(&Bubble::getSprite), py::return_value_policy::reference);
+	b.def("updateSpriteScale", &Bubble::updateSpriteScale);
 
 	b.def("getResistence", &Bubble::getResistence);
 	b.def("isIndestructible", &Bubble::isIndestructible);

@@ -72,6 +72,9 @@ public:
 	u32 getCurrentFrame() const;
 	delta_t getExactCurrentFrame() const;
 
+	void setFrameSpeed(const delta_t& speed);
+	const delta_t& getFrameSpeed() const;
+
 	void rewind();
 	void fastForward();
 
@@ -88,4 +91,5 @@ private:
 	int state() const;
 	void generateCurrent();
 	void updateIterator();
+	void updateTextureRect();
 };

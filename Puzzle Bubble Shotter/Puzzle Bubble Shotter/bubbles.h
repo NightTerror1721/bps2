@@ -51,6 +51,7 @@ public:
 	static const BubbleColor Gray;
 	static const BubbleColor Black;
 
+	static u32 count();
 	static std::vector<BubbleColor> all();
 	static const BubbleColor& defaultColor();
 };
@@ -172,6 +173,7 @@ public:
 	void translate(const float& dx, const float& dy);
 	void move(const vec2f& speed, const vec2f& acceleration = {});
 
+	void setColor(const BubbleColor& color);
 	BubbleColor getColor() const;
 	ColorType getColorType() const;
 
@@ -179,6 +181,7 @@ public:
 
 	AnimatedSprite* getSprite();
 	const AnimatedSprite* getSprite() const;
+	void updateSpriteScale();
 
 	void draw(sf::RenderTarget* const& g);
 	void update(const delta_t& delta);
@@ -205,6 +208,8 @@ public:
 
 private:
 	Bubble(const Ptr<BubbleModel>& model, TextureManager* texs);
+
+	void updateSpriteLocation();
 };
 
 
@@ -237,6 +242,7 @@ class BubbleHeap : MemoryAllocator<Bubble>
 {
 public:
 	BubbleHeap();
+	~BubbleHeap();
 
 	Ptr<Bubble> createNew(const std::string& modelName, TextureManager* const& textures, bool editorMode, const BubbleColor& color = BubbleColor::defaultColor());
 

@@ -1,13 +1,22 @@
 #include "bubbles.h"
 
-const BubbleColor BubbleColor::Red{ 0x1 << 0 };
-const BubbleColor BubbleColor::Orange{ 0x1 << 1 };
-const BubbleColor BubbleColor::Yellow{ 0x1 << 2 };
-const BubbleColor BubbleColor::Green{ 0x1 << 3 };
-const BubbleColor BubbleColor::Blue{ 0x1 << 4 };
-const BubbleColor BubbleColor::Purple{ 0x1 << 5 };
-const BubbleColor BubbleColor::Gray{ 0x1 << 6 };
-const BubbleColor BubbleColor::Black{ 0x1 << 7 };
+#define BUBBLECOLOR_ID_RED (0x1 << 0)
+#define BUBBLECOLOR_ID_ORANGE (0x1 << 1)
+#define BUBBLECOLOR_ID_YELLOW (0x1 << 2)
+#define BUBBLECOLOR_ID_GREEN (0x1 << 3)
+#define BUBBLECOLOR_ID_BLUE (0x1 << 4)
+#define BUBBLECOLOR_ID_PURPLE (0x1 << 5)
+#define BUBBLECOLOR_ID_GRAY (0x1 << 6)
+#define BUBBLECOLOR_ID_BLACK (0x1 << 7)
+
+const BubbleColor BubbleColor::Red{ BUBBLECOLOR_ID_RED };
+const BubbleColor BubbleColor::Orange{ BUBBLECOLOR_ID_ORANGE };
+const BubbleColor BubbleColor::Yellow{ BUBBLECOLOR_ID_YELLOW };
+const BubbleColor BubbleColor::Green{ BUBBLECOLOR_ID_GREEN };
+const BubbleColor BubbleColor::Blue{ BUBBLECOLOR_ID_BLUE };
+const BubbleColor BubbleColor::Purple{ BUBBLECOLOR_ID_PURPLE };
+const BubbleColor BubbleColor::Gray{ BUBBLECOLOR_ID_GRAY };
+const BubbleColor BubbleColor::Black{ BUBBLECOLOR_ID_BLACK };
 
 BubbleColor::BubbleColor(const u8& id) :
 	_id(id)
@@ -26,14 +35,14 @@ std::string BubbleColor::name() const
 {
 	switch (_id)
 	{
-		case 0: return "red";
-		case 1: return "orange";
-		case 2: return "yellow";
-		case 3: return "green";
-		case 4: return "blue";
-		case 5: return "purple";
-		case 6: return "gray";
-		case 7: return "black";
+		case BUBBLECOLOR_ID_RED: return "red";
+		case BUBBLECOLOR_ID_ORANGE: return "orange";
+		case BUBBLECOLOR_ID_YELLOW: return "yellow";
+		case BUBBLECOLOR_ID_GREEN: return "green";
+		case BUBBLECOLOR_ID_BLUE: return "blue";
+		case BUBBLECOLOR_ID_PURPLE: return "purple";
+		case BUBBLECOLOR_ID_GRAY: return "gray";
+		case BUBBLECOLOR_ID_BLACK: return "black";
 		default: return "<unknown_color>";
 	}
 }
@@ -41,6 +50,8 @@ std::string BubbleColor::name() const
 colormask_t BubbleColor::addToMask(const colormask_t& mask) const { return mask | _id; }
 colormask_t BubbleColor::removeFromMask(const colormask_t& mask) const { return mask & ~_id; }
 bool BubbleColor::hasInMask(const colormask_t& mask) const { return mask & _id; }
+
+u32 BubbleColor::count() { return 8; }
 
 std::vector<BubbleColor> BubbleColor::all()
 {
@@ -172,6 +183,7 @@ void Bubble::translate(const vec2f& dp) { setPosition(getPosition() + dp); }
 void Bubble::translate(const float& dx, const float& dy) { translate({ dx, dy }); }
 void Bubble::move(const vec2f& speed, const vec2f& acceleration) { _speed = speed; _acceleration = acceleration; }
 
+void Bubble::setColor(const BubbleColor& color) { _color = color; }
 BubbleColor Bubble::getColor() const { return _color; }
 ColorType Bubble::getColorType() const { return _model->colorType; }
 
@@ -199,14 +211,33 @@ bool Bubble::colorMatch(const Ptr<Bubble>& other) const
 AnimatedSprite* Bubble::getSprite() { return &_sprite; }
 const AnimatedSprite* Bubble::getSprite() const { return &_sprite; }
 
+void Bubble::updateSpriteScale()
+{
+	const sf::Texture* texture = _sprite.getTexture();
+	if (texture)
+	{
+		_sprite.setScale({
+			(Bubble::Radius * 2.f) / _sprite.getFrameWidth(),
+			(Bubble::Radius * 2.f) / _sprite.getFrameHeight()
+		});
+	}
+}
+
 void Bubble::draw(sf::RenderTarget* const& g)
 {
-
+	if (!_destroyed)
+	{
+		_sprite.draw(g);
+	}
 }
 
 void Bubble::update(const delta_t& delta)
 {
-
+	if (!_destroyed)
+	{
+		updateSpriteLocation();
+		_sprite.update(delta);
+	}
 }
 
 
@@ -226,6 +257,13 @@ std::string Bubble::getLocalString(const u8& index) const { return _localStrings
 void Bubble::setLocalInt(const u8& index, const int32& value) { _localInts[index] = value; }
 void Bubble::setLocalFloat(const u8& index, const float& value) { _localFloats[index] = value; }
 void Bubble::setLocalString(const u8& index, const std::string& value) { _localStrings[index] = value; }
+
+
+
+void Bubble::updateSpriteLocation()
+{
+	_sprite.setPosition(getPosition() - vec2f{ static_cast<float>(Bubble::Radius), static_cast<float>(Bubble::Radius) });
+}
 
 
 
@@ -258,6 +296,11 @@ bool HasBubbleModel(const std::string& name) { return BubbleModelManager::_Insta
 BubbleHeap::BubbleHeap() :
 	MemoryAllocator()
 {}
+
+BubbleHeap::~BubbleHeap()
+{
+
+}
 
 Ptr<Bubble> BubbleHeap::createNew(const std::string& modelName, TextureManager* const& textures, bool editorMode, const BubbleColor& color)
 {

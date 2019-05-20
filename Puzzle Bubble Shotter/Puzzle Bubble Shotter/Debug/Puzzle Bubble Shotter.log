@@ -1,7 +1,2 @@
-﻿  bub_board.cpp
-  camera.cpp
-  main.cpp
-  scenario.cpp
-  scenario_props.cpp
-  Generando código...
+﻿  assets.cpp
   Puzzle Bubble Shotter.vcxproj -> D:\BPS2\Puzzle Bubble Shotter\Debug\Puzzle Bubble Shotter.exe

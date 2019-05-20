@@ -35,6 +35,7 @@ void AnimatedSprite::setFrameDimensions(const u32& x, const u32& y, const u32& w
 	_y = y;
 	_w = w;
 	_h = h;
+	updateTextureRect();
 }
 void AnimatedSprite::setFrameCount(const u32& frames_count) { _frames = frames_count; }
 
@@ -67,6 +68,9 @@ void AnimatedSprite::setExactCurrentFrame(const delta_t& frame) { _it = frame; }
 u32 AnimatedSprite::getCurrentFrame() const { return static_cast<u32>(_it); }
 delta_t AnimatedSprite::getExactCurrentFrame() const { return _it; }
 
+void AnimatedSprite::setFrameSpeed(const delta_t& speed) { _speed = speed; }
+const delta_t& AnimatedSprite::getFrameSpeed() const { return _speed; }
+
 void AnimatedSprite::rewind() { _it = 0.f; }
 void AnimatedSprite::fastForward() { _it = static_cast<delta_t>(_frames); }
 
@@ -76,7 +80,7 @@ u32 AnimatedSprite::getFrameWidth() const { return _w; }
 u32 AnimatedSprite::getFrameHeight() const { return _h; }
 u32 AnimatedSprite::getFrameCount() const { return _frames; }
 
-#define try_move_it(delta) if(this->_end) { break; } this->_it += (delta) * this->_speed
+#define try_move_it(delta) if(this->_end) { break; } this->_it += (delta) * this->_speed; updateTextureRect()
 void AnimatedSprite::update(const delta_t& delta)
 {
 	switch (_mode)
@@ -93,11 +97,15 @@ void AnimatedSprite::update(const delta_t& delta)
 			break;
 
 		case Mode::Random:
-			try_move_it(delta);
+			if (this->_end)
+				break;
+
 			if (_current > 0)
 				_current -= delta;
 			else
 			{
+				this->_it += (delta) * this->_speed;
+				updateTextureRect();
 				if (state())
 				{
 					updateIterator();
@@ -121,6 +129,8 @@ void AnimatedSprite::generateCurrent()
 	const delta_t maxval = _max - _min;
 	delta_t percentage = (_rand() / static_cast<delta_t>(_rand.max()));
 	_current = (maxval * percentage) + _min;
+	_it = 0;
+	updateTextureRect();
 }
 
 void AnimatedSprite::updateIterator()
@@ -132,16 +142,22 @@ void AnimatedSprite::updateIterator()
 			_it -= static_cast<delta_t>(_frames);
 		else _it += static_cast<delta_t>(_frames);
 	}
+	updateTextureRect();
 
-	if (_it != _oldIt)
+	/*if (_it != _oldIt)
 	{
-		int it = static_cast<int>(_it);
-		setTextureRect({
-			static_cast<int>(_x + it),
-			static_cast<int>(_y + it),
-			static_cast<int>(_w),
-			static_cast<int>(_h)
-		});
+		updateTextureRect();
 	}
-	_oldIt = _it;
+	_oldIt = _it;*/
+}
+
+void AnimatedSprite::updateTextureRect()
+{
+	int it = static_cast<int>(_it) * _w;
+	setTextureRect({
+		static_cast<int>(_x + it),
+		static_cast<int>(_y),
+		static_cast<int>(_w),
+		static_cast<int>(_h)
+	});
 }
