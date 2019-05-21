@@ -15,20 +15,12 @@ protected:
 	virtual const _Ty& _get() const = 0;
 
 public:
-	inline _Ty& next()
-	{
-		if (_end() || !_hasNext())
-			throw NoSuchElementException();
-		return _next();
-	}
-
-	inline bool hasNext() const { return _hasNext(); }
-
 	inline AbstractForwardIterator& operator++ ()
 	{
 		if (_end() || !_hasNext())
 			throw NoSuchElementException();
-		return _next();
+		_next();
+		return *this;
 	}
 
 	inline Iter<_Ty> operator++ (int)
@@ -80,6 +72,9 @@ public:
 			throw NoSuchElementException();
 		return _array[_idx];
 	}
+
+	bool operator== (const ArrayForwardIterator& other) const { return _end() ? other._end() : _idx == other._idx; }
+	bool operator!= (const ArrayForwardIterator& other) const { return _end() ? !other._end() : _idx != other._idx; }
 };
 
 

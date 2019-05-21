@@ -139,6 +139,7 @@
     <ClCompile Include="assets.cpp" />
     <ClCompile Include="audio.cpp" />
     <ClCompile Include="bubbles.cpp" />
+    <ClCompile Include="bubble_gen.cpp" />
     <ClCompile Include="bub_board.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="config.cpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="assets.h" />
     <ClInclude Include="audio.h" />
     <ClInclude Include="bubbles.h" />
+    <ClInclude Include="bubble_gen.h" />
     <ClInclude Include="bub_board.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="canvas.h" />

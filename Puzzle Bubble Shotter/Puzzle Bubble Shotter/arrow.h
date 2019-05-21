@@ -5,6 +5,7 @@
 
 class Scenario;
 class TextureManager;
+class Arrow;
 
 class ArrowBase
 {
@@ -16,6 +17,11 @@ private:
 
 	sf::FloatRect _bbase;
 	sf::Image _canvas;
+
+public:
+	ArrowBase();
+
+	friend class Arrow;
 };
 
 class Arrow
@@ -50,6 +56,8 @@ public:
 	bool isFireLocked() const;
 	bool isLocked() const;
 
+	void unlockArrow();
+
 	const sf::FloatRect& getBaseBounds() const;
 
 	void fireBubble();
@@ -77,5 +85,5 @@ private:
 		Change
 	};
 
-	const InputMask& mask(const u8& maskId);
+	InputMask mask(const u8& maskId);
 };

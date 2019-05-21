@@ -16,8 +16,11 @@ BubbleCell::~BubbleCell()
 	Ptr<Bubble>::free(_bubble);
 }
 
-const row_t& BubbleCell::row() const { return _row; }
+const row_t& BubbleCell::row() const { return _row->_row; }
 const column_t& BubbleCell::column() const { return _column; }
+
+BubbleRow* BubbleCell::bubbleRow() { return _row; }
+const BubbleRow* BubbleCell::bubbleRow() const { return _row; }
 
 bool BubbleCell::empty() const { return !_bubble; }
 bool BubbleCell::operator! () const { return !_bubble; }
@@ -28,6 +31,7 @@ Ptr<Bubble> BubbleCell::operator* () const { return _bubble; }
 
 Bubble* BubbleCell::operator-> () { return !_bubble ? nullptr : &_bubble; }
 const Bubble* BubbleCell::operator-> () const { return !_bubble ? nullptr : &_bubble; }
+
 
 
 
@@ -78,6 +82,12 @@ BubbleRow::operator bool() const
 	return true;
 }
 
+BubbleRow* BubbleRow::top() { return _top; }
+const BubbleRow* BubbleRow::top() const { return _top; }
+
+BubbleRow* BubbleRow::bottom() { return _bottom; }
+const BubbleRow* BubbleRow::bottom() const { return _bottom; }
+
 bool BubbleRow::validColumn(const column_t& column) const { return column < _columns; }
 
 u32 BubbleRow::count() const
@@ -100,7 +110,7 @@ void BubbleRow::initiate(const row_t& row, const column_t& columns)
 	BubbleCell* cell = _cells;
 	for (u8 i = 0; i < _columns; i++, cell++)
 	{
-		cell->_row = _row;
+		cell->_row = this;
 		cell->_column = i;
 	}
 }
@@ -146,118 +156,72 @@ BubbleRow::const_iterator BubbleRow::end() const { return { _cells, _columns, _c
 
 
 
-BubbleBoard::BubbleBoard(Scenario* const& sc, const column_t& columns) :
-	_sc(sc),
-	_rows(),
-	_columns(columns),
-	_bubblesCount()
+
+
+BoardManager::BoardManager(column_t columns) :
+	_rows{},
+	_columns{ columns },
+	_rowIdGen{ 0 },
+	_bottomRow{ 0 },
+	_realBottomRow{ 0 }
 {}
 
-BubbleBoard::~BubbleBoard()
+const row_t& BoardManager::getBottomRow() const { return _bottomRow; }
+size_t BoardManager::size() const { return _rows.size(); }
+bool BoardManager::empty() const { return _rows.empty(); }
+
+bool BoardManager::isValidRow(const row_t& row) const { return row + (_bottomRow - _realBottomRow) < _rows.size(); }
+
+const column_t& BoardManager::columns() const { return _columns; }
+
+BubbleRow& BoardManager::createRow()
 {
-
-}
-
-column_t BubbleBoard::getColumnCount() const { return _columns; }
-row_t BubbleBoard::getRowCount() const { return { static_cast<u32>(_rows.size()) }; }
-
-const row_t& BubbleBoard::getCurrentRow() const { return _currentRow; }
-
-void BubbleBoard::insertBubble(const row_t& row, const column_t& column, Ptr<Bubble> bubble)
-{
-	if (bubble)
-	{
-		auto& cell = _rows[row][column];
-		if (cell)
-		{
-			cell->destroy();
-		}
-		else _bubblesCount++;
-		*cell = bubble;
-		situateBubble(bubble, row, column);
-	}
-}
-
-void BubbleBoard::destroyBubble(const row_t& row, const column_t& column)
-{
-	auto& cell = _rows[row][column];
-	cell->destroy();
-	*cell = nullptr;
-	_bubblesCount--;
-}
-
-void BubbleBoard::destroyAll()
-{
-	_rows.clear();
-	_bubblesCount = 0;
-}
-
-void BubbleBoard::addNewRow(BubbleHeap* const& bheap, TextureManager* const& tm, const BinBubbleRow& binRow, bool editorMode)
-{
-	const u32 rowid = _rows.size();
-	const u8 cols = is_small_row(rowid) ? static_cast<u8>(_columns) - 1 : static_cast<u8>(_columns);
+	BubbleRow* old = _rows.empty() ? nullptr : &_rows.back();
 	_rows.emplace_back();
 	BubbleRow& row = _rows.back();
-	row.initiate(rowid, _columns);
-	for (u8 i = 0; i < cols && i < binRow.size(); i++)
+	row.initiate(_rowIdGen++, _columns);
+	if (old)
 	{
-		const BinBubble& binbub = binRow[i];
-		if (!binbub.model.empty())
-		{
-			Ptr<Bubble> bub{ bheap->createNew(binbub.model, tm, editorMode, binbub.color) };
-			if (bub)
-			{
-				*row[i] = bub;
-				situateBubble(bub, rowid, i);
-				_bubblesCount++;
-			}
-			else *row[i] = nullptr;
-		}
-		else *row[i] = nullptr;
+		old->_top = &row;
+		row._bottom = old;
 	}
+	else _realBottomRow = row._row;
+	return row;
 }
 
-void BubbleBoard::addRows(BubbleHeap* const& bheap, TextureManager* const& tm, const ScenarioProperties& props, bool editorMode)
+void BoardManager::fillUntilMaxVisible()
 {
-	u32 rowid = _rows.size();
-	for (const BinBubbleRow& binRow : props.getBubbleRows())
+	if (_rows.size() < BubbleBoard::VisibleRows)
 	{
-		const u8 cols = is_small_row(rowid) ? static_cast<u8>(_columns) - 1 : static_cast<u8>(_columns);
-		_rows.emplace_back();
-		BubbleRow& row = _rows.back();
-		row.initiate(rowid, _columns);
-		for (u8 i = 0; i < cols && i < binRow.size(); i++)
-		{
-			const BinBubble& binbub = binRow[i];
-			if (!binbub.model.empty())
-			{
-				Ptr<Bubble> bub{ bheap->createNew(binbub.model, tm, editorMode, binbub.color) };
-				if (bub)
-				{
-					*row[i] = bub;
-					situateBubble(bub, rowid, i);
-					_bubblesCount++;
-				}
-				else *row[i] = nullptr;
-			}
-			else *row[i] = nullptr;
-		}
-		rowid++;
+		const size_t max = BubbleBoard::VisibleRows - _rows.size();
+		for (size_t i = 0; i < max; ++i)
+			createRow();
 	}
 }
 
-void BubbleBoard::addEmptyPanel()
+BubbleRow& BoardManager::bottom() { return _rows.front(); }
+const BubbleRow& BoardManager::bottom() const { return _rows.front(); }
+
+BubbleRow& BoardManager::top() { return _rows.back(); }
+const BubbleRow& BoardManager::top() const { return _rows.back(); }
+
+BubbleRow& BoardManager::operator[] (const row_t& row) { return _rows[row + (_bottomRow - _realBottomRow)]; }
+const BubbleRow& BoardManager::operator[] (const row_t& row) const { return _rows[row + (_bottomRow - _realBottomRow)]; }
+
+BubbleRow& BoardManager::firstVisible()
 {
-	u32 rowid = _rows.size();
-	for (int i = 0; i < BubbleBoard::VisibleRows; i++)
-	{
-		_rows.emplace_back();
-		_rows.back().initiate(rowid, _columns);
-	}
+	const row_t first = (_bottomRow - _realBottomRow) + BubbleBoard::VisibleRows;
+	if (first >= _rows.size())
+		return _rows.back();
+	return _rows[first];
 }
-
-BubbleRow& BubbleBoard::operator[] (const row_t& row) { return _rows[row]; }
-const BubbleRow& BubbleBoard::operator[] (const row_t& row) const { return _rows[row]; }
+const BubbleRow& BoardManager::firstVisible() const
+{
+	const row_t first = (_bottomRow - _realBottomRow) + BubbleBoard::VisibleRows;
+	if (first >= _rows.size())
+		return _rows.back();
+	return _rows[first];
+}
 
 
 #define DELTA(value, delt) ((value) + (delt))
@@ -269,36 +233,156 @@ const BubbleRow& BubbleBoard::operator[] (const row_t& row) const { return _rows
 	} \
 }
 
-
-std::vector<const BubbleCell*> BubbleBoard::findNeighbors(const row_t& row, const column_t& column) const
+std::vector<const BubbleCell*> BoardManager::findNeighbors(row_t row, column_t column) const
 {
+	row = row + (_bottomRow - _realBottomRow);
 	std::vector<const BubbleCell*> neis(6);
 	row_t rowsCount{ static_cast<u16>(_rows.size()) };
 	const column_t& columnsCount = _columns;
 	insert_nei(neis, rowsCount, columnsCount, _rows, row, column, 0, -1)
-	insert_nei(neis, rowsCount, columnsCount, _rows, row, column, 0, 1)
+		insert_nei(neis, rowsCount, columnsCount, _rows, row, column, 0, 1)
 
-	if (is_small_row(row))
-	{
-		insert_nei(neis, rowsCount, columnsCount, _rows, row, column, -1, 0)
-		insert_nei(neis, rowsCount, columnsCount, _rows, row, column, -1, 1)
-		insert_nei(neis, rowsCount, columnsCount, _rows, row, column, 1, 0)
-		insert_nei(neis, rowsCount, columnsCount, _rows, row, column, 1, 1)
-	}
-	else
-	{
-		insert_nei(neis, rowsCount, columnsCount, _rows, row, column, -1, -1)
-		insert_nei(neis, rowsCount, columnsCount, _rows, row, column, -1, 0)
-		insert_nei(neis, rowsCount, columnsCount, _rows, row, column, 1, -1)
-		insert_nei(neis, rowsCount, columnsCount, _rows, row, column, 1, 0)
-	}
-	
+		if (is_small_row(row))
+		{
+			insert_nei(neis, rowsCount, columnsCount, _rows, row, column, -1, 0)
+				insert_nei(neis, rowsCount, columnsCount, _rows, row, column, -1, 1)
+				insert_nei(neis, rowsCount, columnsCount, _rows, row, column, 1, 0)
+				insert_nei(neis, rowsCount, columnsCount, _rows, row, column, 1, 1)
+		}
+		else
+		{
+			insert_nei(neis, rowsCount, columnsCount, _rows, row, column, -1, -1)
+				insert_nei(neis, rowsCount, columnsCount, _rows, row, column, -1, 0)
+				insert_nei(neis, rowsCount, columnsCount, _rows, row, column, 1, -1)
+				insert_nei(neis, rowsCount, columnsCount, _rows, row, column, 1, 0)
+		}
+
 	return std::move(neis);
 }
 
-void findConnectedAlg(const BubbleBoard* const& rows, std::vector<const BubbleCell*>& connected, std::set<const BubbleCell*>& visited, const Ptr<Bubble>& bub, const row_t& row, const column_t& column)
+void BoardManager::clear()
 {
-	std::vector<const BubbleCell*> neis = rows->findNeighbors(row, column);
+	_rows.clear();
+	_rowIdGen = 0;
+	_bottomRow = 0;
+	_realBottomRow = 0;
+
+}
+
+
+
+
+
+
+BubbleBoard::BubbleBoard(Scenario* const& sc, const column_t& columns) :
+	_sc(sc),
+	_board{ columns },
+	_bubblesCount()
+{}
+
+BubbleBoard::~BubbleBoard()
+{
+
+}
+
+column_t BubbleBoard::getColumnCount() const { return _board.columns(); }
+row_t BubbleBoard::getRowCount() const { return { static_cast<u32>(_board.size()) }; }
+
+const row_t& BubbleBoard::getBottomRow() const { return _board.getBottomRow(); }
+
+void BubbleBoard::insertBubble(const row_t& row, const column_t& column, Ptr<Bubble> bubble)
+{
+	if (bubble)
+	{
+		auto& cell = _board[row][column];
+		if (cell)
+		{
+			cell->destroy();
+		}
+		else _bubblesCount++;
+		*cell = bubble;
+		bubble->setBoardCell(&cell);
+		situateBubble(bubble, row, column);
+	}
+}
+
+void BubbleBoard::destroyBubble(const row_t& row, const column_t& column)
+{
+	auto& cell = _board[row][column];
+	cell->destroy();
+	*cell = nullptr;
+	_bubblesCount--;
+}
+
+void BubbleBoard::destroyAll()
+{
+	_board.clear();
+	_bubblesCount = 0;
+}
+
+void BubbleBoard::addNewRow(BubbleHeap* const& bheap, TextureManager* const& tm, const BinBubbleRow& binRow, bool editorMode)
+{
+	BubbleRow& row = _board.createRow();
+	for (u8 i = 0; i < row._columns && i < binRow.size(); i++)
+	{
+		const BinBubble& binbub = binRow[i];
+		if (!binbub.model.empty())
+		{
+			Ptr<Bubble> bub{ bheap->createNew(binbub.model, tm, editorMode, binbub.color) };
+			if (bub)
+			{
+				*row[i] = bub;
+				situateBubble(bub, row._row - 1, i);
+				_bubblesCount++;
+			}
+			else *row[i] = nullptr;
+		}
+		else *row[i] = nullptr;
+	}
+}
+
+void BubbleBoard::addRows(BubbleHeap* const& bheap, TextureManager* const& tm, const ScenarioProperties& props, bool editorMode)
+{
+	for (const BinBubbleRow& binRow : props.getBubbleRows())
+	{
+		BubbleRow& row = _board.createRow();
+		for (u8 i = 0; i < row._columns && i < binRow.size(); i++)
+		{
+			const BinBubble& binbub = binRow[i];
+			if (!binbub.model.empty())
+			{
+				Ptr<Bubble> bub{ bheap->createNew(binbub.model, tm, editorMode, binbub.color) };
+				if (bub)
+				{
+					*row[i] = bub;
+					situateBubble(bub, row._row, i);
+					_bubblesCount++;
+				}
+				else *row[i] = nullptr;
+			}
+			else *row[i] = nullptr;
+		}
+	}
+}
+
+void BubbleBoard::fillPanel()
+{
+	_board.fillUntilMaxVisible();
+}
+
+BubbleRow& BubbleBoard::operator[] (const row_t& row) { return _board[row]; }
+const BubbleRow& BubbleBoard::operator[] (const row_t& row) const { return _board[row]; }
+
+const BubbleRow* BubbleBoard::getFirstVisibleRow() const { return &_board.firstVisible(); }
+
+std::vector<const BubbleCell*> BubbleBoard::findNeighbors(const row_t& row, const column_t& column) const
+{
+	return _board.findNeighbors(row, column);
+}
+
+void findConnectedAlg(const BoardManager& board, std::vector<const BubbleCell*>& connected, std::set<const BubbleCell*>& visited, const Ptr<Bubble>& bub, const row_t& row, const column_t& column)
+{
+	std::vector<const BubbleCell*> neis = board.findNeighbors(row, column);
 	if (!neis.empty())
 	{
 		for (const BubbleCell* (&cell) : neis)
@@ -310,7 +394,7 @@ void findConnectedAlg(const BubbleBoard* const& rows, std::vector<const BubbleCe
 					visited.insert(cell);
 					Ptr<Bubble> foundBub = **cell;
 					if (bub->colorMatch(foundBub))
-						findConnectedAlg(rows, connected, visited, foundBub, cell->row(), cell->column());
+						findConnectedAlg(board, connected, visited, foundBub, cell->row(), cell->column());
 				}
 			}
 		}
@@ -322,9 +406,9 @@ std::vector<const BubbleCell*> BubbleBoard::findConnected(const row_t& row, cons
 	std::vector<const BubbleCell*> connected{ 6 };
 	std::set<const BubbleCell*> visited{};
 
-	if (row < _rows.size())
+	if (_board.isValidRow(row))
 	{
-		const BubbleRow& brow = _rows[row];
+		const BubbleRow& brow = _board[row];
 		if (brow.validColumn(column))
 		{
 			const BubbleCell& cell = brow[column];
@@ -332,27 +416,35 @@ std::vector<const BubbleCell*> BubbleBoard::findConnected(const row_t& row, cons
 			{
 				connected.push_back(&cell);
 				visited.insert(&cell);
-				findConnectedAlg(this, connected, visited, *cell, row, column);
+				findConnectedAlg(_board, connected, visited, *cell, row, column);
 			}
 		}
 	}
 	return std::move(connected);
 }
 
-void BubbleBoard::forEachBubbleInRange(const row_t& fromRow, const row_t& toRow, std::function<void(Bubble*)> action)
+bool BubbleBoard::isBubbleInaccesible(Ptr<Bubble> bub) const
 {
-	row_t from{ std::min(fromRow, toRow) };
-	row_t to{ std::max(fromRow, toRow) };
+	if (!bub->hasBoardCell())
+		return false;
 
-	if (to < _rows.size())
-		for (; from <= to; from++)
-			_rows[from].forEachBubble(action);
+	const BubbleCell& cell = *bub->getBoardCell();
+	if (!cell.bubbleRow()->bottom())
+		return false;
+
+	const BubbleRow& bottomRow = *cell.bubbleRow()->bottom();
+	if (!bottomRow[cell._column])
+		return false;
+
+	if (bottomRow.isSmall())
+		return (cell._column + 1 >= bottomRow._columns || bottomRow[cell._column + 1]) && bottomRow[cell._column];
+	return (cell._column <= 0 || bottomRow[cell._column - 1]) && bottomRow[cell._column];
 }
 
 
 void BubbleBoard::draw(sf::RenderTarget* const& g)
 {
-	if (!_rows.empty())
+	/*if (!_rows.empty())
 	{
 		const u32 rows = BubbleBoard::VisibleRows + _currentRow;
 		const u32 last = _rows.front()._row;
@@ -364,12 +456,17 @@ void BubbleBoard::draw(sf::RenderTarget* const& g)
 			for (u32 i = 0, rowid = rows - 1; i < len; ++i, --rowid)
 				_rows[rowid].draw(g);
 		}
+	}*/
+	if (!_board.empty())
+	{
+		for (BubbleRow* row = &_board.firstVisible(); row; row = row->bottom())
+			row->draw(g);
 	}
 }
 
 void BubbleBoard::update(const delta_t& delta)
 {
-	if (!_rows.empty())
+	/*if (!_rows.empty())
 	{
 		const u32 rows = BubbleBoard::VisibleRows + _currentRow;
 		const u32 last = _rows.front()._row;
@@ -381,6 +478,11 @@ void BubbleBoard::update(const delta_t& delta)
 			for (u32 i = 0, rowid = rows - 1; i < len; ++i, --rowid)
 				_rows[rowid].update(delta);
 		}
+	}*/
+	if (!_board.empty())
+	{
+		for (BubbleRow* row = &_board.firstVisible(); row; row = row->bottom())
+			row->update(delta);
 	}
 }
 

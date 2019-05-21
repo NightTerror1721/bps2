@@ -12,6 +12,7 @@
 class BubbleCell;
 class BubbleRow;
 class BubbleBoard;
+class BoardManager;
 
 class Scenario;
 
@@ -23,7 +24,7 @@ class BubbleCell
 {
 private:
 	Ptr<Bubble> _bubble;
-	row_t _row;
+	BubbleRow* _row;
 	column_t _column;
 
 public:
@@ -31,6 +32,8 @@ public:
 
 	const row_t& row() const;
 	const column_t& column() const;
+
+	const BubbleRow* bubbleRow() const;
 
 	bool empty() const;
 	bool operator! () const;
@@ -52,6 +55,8 @@ public:
 private:
 	BubbleCell();
 
+	BubbleRow* bubbleRow();
+
 	Ptr<Bubble>& operator* ();
 
 	Bubble* operator-> ();
@@ -68,6 +73,9 @@ private:
 	row_t _row;
 	column_t _columns;
 	BubbleCell* _cells;
+
+	BubbleRow* _top;
+	BubbleRow* _bottom;
 
 public:
 	BubbleRow();
@@ -86,6 +94,10 @@ public:
 	bool operator! () const;
 	operator bool() const;
 
+	
+	const BubbleRow* top() const;
+	const BubbleRow* bottom() const;
+
 	bool validColumn(const column_t& column) const;
 
 	u32 count() const;
@@ -96,6 +108,8 @@ public:
 	iterator end();
 	const_iterator end() const;
 
+	friend class BubbleCell;
+	friend class BoardManager;
 	friend class BubbleBoard;
 
 private:
@@ -104,10 +118,60 @@ private:
 
 	BubbleCell& operator[] (const column_t& column);
 
+	BubbleRow* top();
+	BubbleRow* bottom();
+
 	void forEachBubble(std::function<void(Bubble*)>& action);
 
 	void draw(sf::RenderTarget* const& g);
 	void update(const delta_t& delta);
+};
+
+
+class BoardManager
+{
+private:
+	std::vector<BubbleRow> _rows;
+	column_t _columns;
+	row_t _rowIdGen;
+	row_t _bottomRow;
+	row_t _realBottomRow;
+
+public:
+	const row_t& getBottomRow() const;
+	size_t size() const;
+	bool empty() const;
+
+	bool isValidRow(const row_t& row) const;
+
+	const column_t& columns() const;
+	
+	const BubbleRow& bottom() const;
+	const BubbleRow& top() const;
+	
+	const BubbleRow& operator[] (const row_t& row) const;
+
+	const BubbleRow& firstVisible() const;
+
+	std::vector<const BubbleCell*> findNeighbors(row_t row, column_t column) const;
+
+	friend class BubbleBoard;
+
+private:
+	BoardManager(column_t columns);
+
+	BubbleRow& createRow();
+
+	void fillUntilMaxVisible();
+
+	BubbleRow& bottom();
+	BubbleRow& top();
+
+	BubbleRow& operator[] (const row_t& row);
+
+	BubbleRow& firstVisible();
+
+	void clear();
 };
 
 
@@ -116,11 +180,9 @@ class BubbleBoard
 private:
 	Scenario* const _sc;
 
-	std::vector<BubbleRow> _rows;
-	column_t _columns;
-	u32 _bubblesCount;
+	BoardManager _board;
 
-	row_t _currentRow;
+	u32 _bubblesCount;
 
 public:
 	BubbleBoard(Scenario* const& sc, const column_t& columns);
@@ -129,7 +191,7 @@ public:
 	column_t getColumnCount() const;
 	row_t getRowCount() const;
 
-	const row_t& getCurrentRow() const;
+	const row_t& getBottomRow() const;
 
 	void insertBubble(const row_t& row, const column_t& column, Ptr<Bubble> bubble);
 
@@ -141,15 +203,17 @@ public:
 
 	void addRows(BubbleHeap* const& bheap, TextureManager* const& tm, const ScenarioProperties& props, bool editorMode);
 
-	void addEmptyPanel();
+	void fillPanel();
 
 	BubbleRow& operator[] (const row_t& row);
+
+	const BubbleRow* getFirstVisibleRow() const;
 
 	std::vector<const BubbleCell*> findNeighbors(const row_t& row, const column_t& column) const;
 
 	std::vector<const BubbleCell*> findConnected(const row_t& row, const column_t& column) const;
 
-	void forEachBubbleInRange(const row_t& fromRow, const row_t& toRow, std::function<void(Bubble*)> action);
+	bool isBubbleInaccesible(Ptr<Bubble> bub) const;
 
 	void draw(sf::RenderTarget* const& g);
 	void update(const delta_t& delta);

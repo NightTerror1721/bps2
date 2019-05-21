@@ -8,6 +8,7 @@ typedef u8 colormask_t;
 class BubbleColor;
 class Bubble;
 class BubbleHeap;
+class BubbleCell;
 
 colormask_t operator+ (const colormask_t& mask, const BubbleColor& color);
 colormask_t operator- (const colormask_t& mask, const BubbleColor& color);
@@ -16,9 +17,15 @@ bool operator& (const colormask_t& mask, const BubbleColor& color);
 class BubbleColor
 {
 private:
-	u8 _id;
+	colormask_t _id;
 
 public:
+	BubbleColor(const BubbleColor&) = default;
+	BubbleColor(BubbleColor&&) = default;
+
+	BubbleColor& operator= (const BubbleColor&) = default;
+	BubbleColor& operator= (BubbleColor&&) = default;
+
 	bool operator== (const BubbleColor& color) const;
 	bool operator!= (const BubbleColor& color) const;
 	bool operator> (const BubbleColor& color) const;
@@ -26,7 +33,11 @@ public:
 	bool operator>= (const BubbleColor& color) const;
 	bool operator<= (const BubbleColor& color) const;
 
-	u8 id() const;
+	colormask_t operator+ (const BubbleColor& color) const;
+
+	colormask_t id() const;
+
+	u8 ordinal() const;
 
 	std::string name() const;
 
@@ -39,7 +50,7 @@ public:
 	friend bool operator& (const colormask_t& mask, const BubbleColor& color);
 
 private:
-	BubbleColor(const u8& id);
+	BubbleColor(const colormask_t& id);
 
 public:
 	static const BubbleColor Red;
@@ -148,6 +159,8 @@ private:
 
 	BouncingBounds _bounce;
 
+	BubbleCell* _cell;
+
 	std::vector<int32> _localInts;
 	std::vector<float> _localFloats;
 	std::vector<std::string> _localStrings;
@@ -182,6 +195,10 @@ public:
 	AnimatedSprite* getSprite();
 	const AnimatedSprite* getSprite() const;
 	void updateSpriteScale();
+
+	void setBoardCell(BubbleCell* cell);
+	BubbleCell* getBoardCell() const;
+	bool hasBoardCell() const;
 
 	void draw(sf::RenderTarget* const& g);
 	void update(const delta_t& delta);

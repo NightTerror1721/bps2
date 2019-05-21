@@ -12,6 +12,8 @@ private:
 	unsigned int _value;
 
 public:
+	rand_value_t(const unsigned int& value);
+
 	operator unsigned int() const;
 
 	bool operator==(const unsigned int& value) const;
@@ -29,9 +31,6 @@ public:
 	friend bool operator<=(const unsigned int& value, const rand_value_t& rand);
 
 	friend class RNG;
-
-private:
-	rand_value_t(const unsigned int& value);
 };
 
 bool operator==(const unsigned int& value, const rand_value_t& rand);

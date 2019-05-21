@@ -95,6 +95,9 @@
     <ClCompile Include="arrow.cpp">
       <Filter>Archivos de origen\Scenario</Filter>
     </ClCompile>
+    <ClCompile Include="bubble_gen.cpp">
+      <Filter>Archivos de origen\Scenario</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="py.h">
@@ -152,6 +155,9 @@
       <Filter>Archivos de encabezado\Scenario</Filter>
     </ClInclude>
     <ClInclude Include="arrow.h">
+      <Filter>Archivos de encabezado\Scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="bubble_gen.h">
       <Filter>Archivos de encabezado\Scenario</Filter>
     </ClInclude>
   </ItemGroup>

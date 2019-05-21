@@ -18,7 +18,7 @@ const BubbleColor BubbleColor::Purple{ BUBBLECOLOR_ID_PURPLE };
 const BubbleColor BubbleColor::Gray{ BUBBLECOLOR_ID_GRAY };
 const BubbleColor BubbleColor::Black{ BUBBLECOLOR_ID_BLACK };
 
-BubbleColor::BubbleColor(const u8& id) :
+BubbleColor::BubbleColor(const colormask_t& id) :
 	_id(id)
 {}
 
@@ -29,7 +29,25 @@ bool BubbleColor::operator< (const BubbleColor& color) const { return _id < colo
 bool BubbleColor::operator>= (const BubbleColor& color) const { return _id >= color._id; }
 bool BubbleColor::operator<= (const BubbleColor& color) const { return _id <= color._id; }
 
-u8 BubbleColor::id() const { return _id; }
+colormask_t BubbleColor::operator+ (const BubbleColor& color) const { return _id | color._id; }
+
+colormask_t BubbleColor::id() const { return _id; }
+
+u8 BubbleColor::ordinal() const
+{
+	switch (_id)
+	{
+	case BUBBLECOLOR_ID_RED: return 0;
+	case BUBBLECOLOR_ID_ORANGE: return 1;
+	case BUBBLECOLOR_ID_YELLOW: return 2;
+	case BUBBLECOLOR_ID_GREEN: return 3;
+	case BUBBLECOLOR_ID_BLUE: return 4;
+	case BUBBLECOLOR_ID_PURPLE: return 5;
+	case BUBBLECOLOR_ID_GRAY: return 6;
+	case BUBBLECOLOR_ID_BLACK: return 7;
+	default: return 255;
+	}
+}
 
 std::string BubbleColor::name() const
 {
@@ -164,6 +182,7 @@ void Bubble::destroy()
 {
 	//TODO: Implement
 	_destroyed = true;
+	_cell = nullptr;
 }
 
 bool Bubble::hasExploited() const { return _destroyed || _exploited; }
@@ -222,6 +241,10 @@ void Bubble::updateSpriteScale()
 		});
 	}
 }
+
+void Bubble::setBoardCell(BubbleCell* cell) { _cell = cell; }
+BubbleCell* Bubble::getBoardCell() const { return _cell; }
+bool Bubble::hasBoardCell() const { return _cell; }
 
 void Bubble::draw(sf::RenderTarget* const& g)
 {

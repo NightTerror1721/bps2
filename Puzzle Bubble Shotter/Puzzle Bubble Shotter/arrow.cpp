@@ -1,5 +1,7 @@
 #include "arrow.h"
 
+#include "scenario.h"
+
 #include <exception>
 
 #define MAX_SPEED 120.f
@@ -8,6 +10,12 @@
 #define MIN_DEGREES -MAX_DEGREES
 
 #define SPEED(delta) (this->_slowly ? MIN_SPEED : MAX_SPEED)
+
+
+
+ArrowBase::ArrowBase()
+{}
+
 
 
 Arrow::Arrow(Scenario* const& sc, TextureManager* const& tm, const ScenarioProperties& props) :
@@ -22,25 +30,53 @@ Arrow::Arrow(Scenario* const& sc, TextureManager* const& tm, const ScenarioPrope
 	_degrees{ 0 },
 	_moveTimes{ 0 },
 	_currentBubble{ nullptr },
-	_nextBubble{ nullptr },
-{}
+	_nextBubble{ nullptr }
+{
+	const sf::FloatRect& scBounds = _sc->getBounds();
+	_bounds.left = scBounds.left + (scBounds.width / 2.f) - 11.f;
+	_bounds.top = scBounds.top + (scBounds.height - 64.f + 14.f);
+	_bounds.width = 22;
+	_bounds.height = 120;
+}
 
-void Arrow::startBubbles();
+void Arrow::startBubbles()
+{
 
-void Arrow::unlockFire();
+}
 
-bool Arrow::isFireLocked() const;
-bool Arrow::isLocked() const;
+void Arrow::unlockFire()
+{
+	if (!_lockFire)
+		return;
+	_lockFire = false;
+	generateNext();
+}
 
-const sf::FloatRect& Arrow::getBaseBounds() const;
+bool Arrow::isFireLocked() const { return _lockFire; }
+bool Arrow::isLocked() const { return _lock; }
 
-void Arrow::fireBubble();
+void Arrow::unlockArrow()
+{
+	_lock = false;
+	_lockFire = false;
+}
 
-bool Arrow::isBubbleFired() const;
+const sf::FloatRect& Arrow::getBaseBounds() const { return _base._bbase; }
 
-void Arrow::draw(sf::RenderTarget* const& g);
-void Arrow::update(const delta_t& delta);
-void Arrow::dispatchEvent(const InputEvent& event);
+void Arrow::fireBubble()
+{
+	if (!_lockFire && _currentBubble)
+	{
+		_doFire = true;
+		//_currentBubble->
+	}
+}
+
+bool Arrow::isBubbleFired() const { return false; }
+
+void Arrow::draw(sf::RenderTarget* const& g) {}
+void Arrow::update(const delta_t& delta) {}
+void Arrow::dispatchEvent(const InputEvent& event) {}
 
 void Arrow::generateNext()
 {
@@ -53,9 +89,9 @@ void Arrow::generateNext()
 	}
 }
 
-void Arrow::swapBubble();
+void Arrow::swapBubble() {}
 
-const InputMask& Arrow::mask(const u8& maskId)
+InputMask Arrow::mask(const u8& maskId)
 {
 	switch (maskId)
 	{

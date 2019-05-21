@@ -7,11 +7,11 @@
 Scenario::Scenario(GameController* const& gc, TextureManager* const& tm, const ScenarioProperties& prop) :
 	_gc(gc),
 	_tm(tm),
+	_bounds{ computeBoardBounds() },
 	_bubbles(this, prop.getColumns()),
 	_bheap(),
 	_cam(),
-	_bcam(),
-	_bounds{ computeBoardBounds() }
+	_bcam()
 {
 	init(prop);
 }
