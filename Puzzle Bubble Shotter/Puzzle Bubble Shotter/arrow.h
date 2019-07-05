@@ -21,6 +21,10 @@ private:
 public:
 	ArrowBase();
 
+	void update(const delta_t& delta);
+	void drawArrow(sf::RenderTarget* const& g);
+	void drawBase(sf::RenderTarget* const& g);
+
 	friend class Arrow;
 };
 

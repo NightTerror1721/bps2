@@ -72,9 +72,16 @@ void GameController::resetWindow()
 
 	if (_window.isOpen())
 		close();
-	_window.create(_vmode, _name.c_str(), _wstyle);
-	_window.setVerticalSyncEnabled(true);
-	_window.setActive(true);
+	try
+	{
+		_window.create(_vmode, _name.c_str(), _wstyle);
+		_window.setVerticalSyncEnabled(true);
+		_window.setActive(true);
+	}
+	catch (...)
+	{
+
+	}
 }
 
 bool GameController::isFullscreen() const { return _wstyle & wstyle::Fullscreen; }

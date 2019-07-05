@@ -280,6 +280,12 @@ namespace
 
 }
 
+
+template<class _Ty>
+class Ptr;
+template<class _Ty>
+class ConstPtr;
+
 template<class _Ty>
 class Ptr
 {
@@ -324,11 +330,80 @@ public:
 		}
 	}
 
+	template<class _Ty> friend class ConstPtr;
 	template<class _Ty> friend class MemoryAllocator;
+
+	template<class _Ty> friend bool operator== (const Ptr<_Ty>& ptr, const ConstPtr<_Ty>& cptr);
+	template<class _Ty> friend bool operator!= (const Ptr<_Ty>& ptr, const ConstPtr<_Ty>& cptr);
+	template<class _Ty> friend bool operator> (const Ptr<_Ty>& ptr, const ConstPtr<_Ty>& cptr);
+	template<class _Ty> friend bool operator< (const Ptr<_Ty>& ptr, const ConstPtr<_Ty>& cptr);
+	template<class _Ty> friend bool operator>= (const Ptr<_Ty>& ptr, const ConstPtr<_Ty>& cptr);
+	template<class _Ty> friend bool operator<= (const Ptr<_Ty>& ptr, const ConstPtr<_Ty>& cptr);
 
 private:
 	Ptr(alloc_t* const& ptr) : _alloc(ptr) {}
 };
+
+template<class _Ty>
+class ConstPtr
+{
+private:
+	using alloc_t = const Allocator<_Ty>;
+
+	alloc_t* _alloc;
+
+public:
+	ConstPtr() : _alloc(nullptr) {}
+	ConstPtr(std::nullptr_t) : _alloc(nullptr) {}
+	ConstPtr(const Ptr<_Ty>& ptr) : _alloc{ ptr._alloc } {}
+	ConstPtr& operator= (std::nullptr_t) { _alloc = nullptr; return *this; }
+
+	bool operator== (const ConstPtr& ptr) const { return _alloc == ptr._alloc; }
+	bool operator!= (const ConstPtr& ptr) const { return _alloc != ptr._alloc; }
+	bool operator> (const ConstPtr& ptr) const { return _alloc > ptr._alloc; }
+	bool operator< (const ConstPtr& ptr) const { return _alloc < ptr._alloc; }
+	bool operator>= (const ConstPtr& ptr) const { return _alloc >= ptr._alloc; }
+	bool operator<= (const ConstPtr& ptr) const { return _alloc <= ptr._alloc; }
+
+	bool operator== (const Ptr<_Ty>& ptr) const { return _alloc == ptr._alloc; }
+	bool operator!= (const Ptr<_Ty>& ptr) const { return _alloc != ptr._alloc; }
+	bool operator> (const Ptr<_Ty>& ptr) const { return _alloc > ptr._alloc; }
+	bool operator< (const Ptr<_Ty>& ptr) const { return _alloc < ptr._alloc; }
+	bool operator>= (const Ptr<_Ty>& ptr) const { return _alloc >= ptr._alloc; }
+	bool operator<= (const Ptr<_Ty>& ptr) const { return _alloc <= ptr._alloc; }
+
+	bool operator== (std::nullptr_t) const { return !_alloc; }
+	bool operator!= (std::nullptr_t) const { return _alloc; }
+
+	bool operator! () const { return !_alloc; }
+	operator bool() const { return _alloc; }
+
+	inline const _Ty& operator* () const { return _alloc->data; }
+
+	inline const _Ty* operator-> () const { return &_alloc->data; }
+
+	inline const _Ty* operator& () const { return &_alloc->data; }
+
+	template<class _Ty> friend class Ptr;
+	template<class _Ty> friend class MemoryAllocator;
+
+	template<class _Ty> friend bool operator== (const Ptr<_Ty>& ptr, const ConstPtr<_Ty>& cptr);
+	template<class _Ty> friend bool operator!= (const Ptr<_Ty>& ptr, const ConstPtr<_Ty>& cptr);
+	template<class _Ty> friend bool operator> (const Ptr<_Ty>& ptr, const ConstPtr<_Ty>& cptr);
+	template<class _Ty> friend bool operator< (const Ptr<_Ty>& ptr, const ConstPtr<_Ty>& cptr);
+	template<class _Ty> friend bool operator>= (const Ptr<_Ty>& ptr, const ConstPtr<_Ty>& cptr);
+	template<class _Ty> friend bool operator<= (const Ptr<_Ty>& ptr, const ConstPtr<_Ty>& cptr);
+
+private:
+	ConstPtr(alloc_t* const& ptr) : _alloc(ptr) {}
+};
+
+template<class _Ty> bool operator== (const Ptr<_Ty>& ptr, const ConstPtr<_Ty>& cptr) { return ptr._alloc == cptr._alloc; }
+template<class _Ty> bool operator!= (const Ptr<_Ty>& ptr, const ConstPtr<_Ty>& cptr) { return ptr._alloc != cptr._alloc; }
+template<class _Ty> bool operator> (const Ptr<_Ty>& ptr, const ConstPtr<_Ty>& cptr) { return ptr._alloc > cptr._alloc; }
+template<class _Ty> bool operator< (const Ptr<_Ty>& ptr, const ConstPtr<_Ty>& cptr) { return ptr._alloc < cptr._alloc; }
+template<class _Ty> bool operator>= (const Ptr<_Ty>& ptr, const ConstPtr<_Ty>& cptr) { return ptr._alloc >= cptr._alloc; }
+template<class _Ty> bool operator<= (const Ptr<_Ty>& ptr, const ConstPtr<_Ty>& cptr) { return ptr._alloc <= cptr._alloc; }
 
 
 template<class _Ty>
@@ -336,6 +411,7 @@ class MemoryAllocator
 {
 public:
 	using ptr_t = Ptr<_Ty>;
+	using const_ptr_t = ConstPtr<_Ty>;
 	using alloc_t = Allocator<_Ty>;
 	using iterator = AllocatorIterator<_Ty>;
 	using const_iterator = const AllocatorIterator<_Ty>;
@@ -381,7 +457,7 @@ public:
 	inline void forEach(std::function<void(const _Ty&)> action) const { _mem.forEach(action); }
 
 	inline ptr_t operator[] (const UniqueID& id) { return find(id); }
-	inline const ptr_t operator[] (const UniqueID& id) const { return find(id); }
+	inline const_ptr_t operator[] (const UniqueID& id) const { return find(id); }
 
 	iterator begin() { return _mem.begin(); }
 	const_iterator begin() const { return _mem.begin(); }

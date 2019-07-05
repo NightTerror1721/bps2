@@ -74,8 +74,8 @@ private:
 	column_t _columns;
 	BubbleCell* _cells;
 
-	BubbleRow* _top;
-	BubbleRow* _bottom;
+	Ptr<BubbleRow> _top;
+	Ptr<BubbleRow> _bottom;
 
 public:
 	BubbleRow();
@@ -95,8 +95,8 @@ public:
 	operator bool() const;
 
 	
-	const BubbleRow* top() const;
-	const BubbleRow* bottom() const;
+	ConstPtr<BubbleRow> top() const;
+	ConstPtr<BubbleRow> bottom() const;
 
 	bool validColumn(const column_t& column) const;
 
@@ -118,8 +118,8 @@ private:
 
 	BubbleCell& operator[] (const column_t& column);
 
-	BubbleRow* top();
-	BubbleRow* bottom();
+	Ptr<BubbleRow> top();
+	Ptr<BubbleRow> bottom();
 
 	void forEachBubble(std::function<void(Bubble*)>& action);
 
@@ -131,7 +131,8 @@ private:
 class BoardManager
 {
 private:
-	std::vector<BubbleRow> _rows;
+	MemoryAllocator<BubbleRow> _rowsAllocator;
+	std::vector<Ptr<BubbleRow>> _rows;
 	column_t _columns;
 	row_t _rowIdGen;
 	row_t _bottomRow;
@@ -146,12 +147,12 @@ public:
 
 	const column_t& columns() const;
 	
-	const BubbleRow& bottom() const;
-	const BubbleRow& top() const;
+	ConstPtr<BubbleRow> bottom() const;
+	ConstPtr<BubbleRow> top() const;
 	
-	const BubbleRow& operator[] (const row_t& row) const;
+	ConstPtr<BubbleRow> operator[] (const row_t& row) const;
 
-	const BubbleRow& firstVisible() const;
+	ConstPtr<BubbleRow> firstVisible() const;
 
 	std::vector<const BubbleCell*> findNeighbors(row_t row, column_t column) const;
 
@@ -160,16 +161,16 @@ public:
 private:
 	BoardManager(column_t columns);
 
-	BubbleRow& createRow();
+	Ptr<BubbleRow> createRow();
 
 	void fillUntilMaxVisible();
 
-	BubbleRow& bottom();
-	BubbleRow& top();
+	Ptr<BubbleRow> bottom();
+	Ptr<BubbleRow> top();
 
-	BubbleRow& operator[] (const row_t& row);
+	Ptr<BubbleRow> operator[] (const row_t& row);
 
-	BubbleRow& firstVisible();
+	Ptr<BubbleRow> firstVisible();
 
 	void clear();
 };
@@ -205,9 +206,9 @@ public:
 
 	void fillPanel();
 
-	BubbleRow& operator[] (const row_t& row);
+	ConstPtr<BubbleRow> operator[] (const row_t& row) const;
 
-	const BubbleRow* getFirstVisibleRow() const;
+	ConstPtr<BubbleRow> getFirstVisibleRow() const;
 
 	std::vector<const BubbleCell*> findNeighbors(const row_t& row, const column_t& column) const;
 
@@ -221,7 +222,7 @@ public:
 
 
 private:
-	const BubbleRow& operator[] (const row_t& row) const;
+	Ptr<BubbleRow> operator[] (const row_t& row);
 
 	void situateBubble(Ptr<Bubble>& bub, const row_t& row, const column_t& column);
 

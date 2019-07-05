@@ -42,6 +42,8 @@ namespace pylib
 {
 	py::object executePythonScript(const std::string& filepath);
 
+	void loadConfig();
+
 	void bindTextureManager(TextureManager* const& ptr);
 	void unbindTextureManager();
 

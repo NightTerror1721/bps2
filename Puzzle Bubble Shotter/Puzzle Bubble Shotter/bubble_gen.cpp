@@ -73,7 +73,7 @@ const BubbleColor& BubbleColorSelector::select(const BubbleBoard* board)
 	std::map<BubbleColor, u32> scores;
 	u32 baseScore = 1;
 	u32 totalScore = 0;
-	for (const BubbleRow* row = board->getFirstVisibleRow(); row; row = row->bottom())
+	for (ConstPtr<BubbleRow> row = board->getFirstVisibleRow(); row; row = row->bottom())
 	{
 		for(const BubbleCell& cell : *row)
 			if (cell && cell->getColorType() == ColorType::NormalColor)

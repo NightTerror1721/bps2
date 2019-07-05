@@ -46,6 +46,8 @@ int main(int argc, char** argv)
 	GameController gc("Puzzle Bubble Shooter");
 	TextureManager tm{};
 
+	pylib::loadConfig();
+
 	pylib::bindTextureManager(&tm);
 
 	pylib::executePythonScript(Path::BubbleModels + "cache.py");

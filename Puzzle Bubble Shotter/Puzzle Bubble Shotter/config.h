@@ -1,6 +1,8 @@
 #pragma once
 
 #include <iostream>
+#include <map>
+#include <vector>
 #include <type_traits>
 #include <SFML/System/Vector2.hpp>
 
@@ -106,179 +108,71 @@ private:
 
 #define RANGE_LIMIT(minValue, maxValue, value) __min((maxValue), (__max((minValue), (value))))
 
-template<class _Base, _Base _Min, _Base _Max>
-class LimitedValue
+
+class Config;
+Config& __ConfigInstance();
+
+class Config : public Singleton
 {
 private:
-	_Base _value;
+	enum class DataType : u8 { Null, Integer, Float, Boolean, String };
+	struct Data
+	{
+		DataType type;
+		void* data;
+
+		friend class Config;
+
+		Data();
+		~Data();
+
+	private:
+		void setNull(const std::nullptr_t&);
+		void setInteger(const int32& value);
+		void setFloat(const float& value);
+		void setBoolean(const bool& value);
+		void setString(const std::string& value);
+
+		bool isNull() const;
+		int32 getInteger(int32 default_value = 0) const;
+		float getFloat(float default_value = 0.f) const;
+		bool getBoolean(bool default_value = false) const;
+		const std::string& getString(const std::string& default_value = "") const;
+	};
+
+private:
+	static Config _instance;
+
+	std::map<std::string, Data> _map;
+
+	Config();
 
 public:
-	inline LimitedValue() : _value{ _Min } {}
-	inline LimitedValue(const _Base& value) : _value{ RANGE_LIMIT(_Min, _Max, value) } {}
+	void setNull(const std::string& key);
+	void setInteger(const std::string& key, int32 value);
+	void setFloat(const std::string& key, float value);
+	void setBoolean(const std::string& key, bool value);
+	void setString(const std::string& key, const std::string& value);
 
-	inline LimitedValue& operator= (const _Base& value) { _value = RANGE_LIMIT(_Min, _Max, value); return *this; }
+	static bool isNull(const std::string& key);
+	static int32 getInteger(const std::string& key, int32 default_value = 0);
+	static float getFloat(const std::string& key, float default_value = 0.f);
+	static bool getBoolean(const std::string& key, bool default_value = false);
+	static const std::string& getString(const std::string& key, const std::string& default_value = "");
 
-	inline LimitedValue& operator+= (const LimitedValue& other) { _value = RANGE_LIMIT(_Min, _Max, (_value + other._value)); return *this; }
-	inline LimitedValue& operator-= (const LimitedValue& other) { _value = RANGE_LIMIT(_Min, _Max, (_value - other._value)); return *this; }
-	inline LimitedValue& operator*= (const LimitedValue& other) { _value = RANGE_LIMIT(_Min, _Max, (_value * other._value)); return *this; }
-	inline LimitedValue& operator/= (const LimitedValue& other) { _value = RANGE_LIMIT(_Min, _Max, (_value / other._value)); return *this; }
-	inline LimitedValue& operator%= (const LimitedValue& other) { _value = RANGE_LIMIT(_Min, _Max, (_value % other._value)); return *this; }
-	inline LimitedValue& operator+= (const _Base& value) { _value = RANGE_LIMIT(_Min, _Max, (_value + value)); return *this; }
-	inline LimitedValue& operator-= (const _Base& value) { _value = RANGE_LIMIT(_Min, _Max, (_value - value)); return *this; }
-	inline LimitedValue& operator*= (const _Base& value) { _value = RANGE_LIMIT(_Min, _Max, (_value * value)); return *this; }
-	inline LimitedValue& operator/= (const _Base& value) { _value = RANGE_LIMIT(_Min, _Max, (_value / value)); return *this; }
-	inline LimitedValue& operator%= (const _Base& value) { _value = RANGE_LIMIT(_Min, _Max, (_value % value)); return *this; }
-	inline LimitedValue& operator+= (const int& value) { _value = RANGE_LIMIT(_Min, _Max, (_value + static_cast<_Base>(value))); return *this; }
-	inline LimitedValue& operator-= (const int& value) { _value = RANGE_LIMIT(_Min, _Max, (_value - static_cast<_Base>(value))); return *this; }
-	inline LimitedValue& operator*= (const int& value) { _value = RANGE_LIMIT(_Min, _Max, (_value * static_cast<_Base>(value))); return *this; }
-	inline LimitedValue& operator/= (const int& value) { _value = RANGE_LIMIT(_Min, _Max, (_value / static_cast<_Base>(value))); return *this; }
-	inline LimitedValue& operator%= (const int& value) { _value = RANGE_LIMIT(_Min, _Max, (_value % static_cast<_Base>(value))); return *this; }
+	friend Config& __ConfigInstance();
 
-	inline LimitedValue operator+ (const LimitedValue& other) const { return { RANGE_LIMIT(_Min, _Max, (_value + other._value)) }; }
-	inline LimitedValue operator- (const LimitedValue& other) const { return { RANGE_LIMIT(_Min, _Max, (_value - other._value)) }; }
-	inline LimitedValue operator* (const LimitedValue& other) const { return { RANGE_LIMIT(_Min, _Max, (_value * other._value)) }; }
-	inline LimitedValue operator/ (const LimitedValue& other) const { return { RANGE_LIMIT(_Min, _Max, (_value / other._value)) }; }
-	inline int operator% (const LimitedValue& other) const { return _value % other._value; }
-	inline LimitedValue operator+ (const _Base& value) const { return { RANGE_LIMIT(_Min, _Max, (_value + value)) }; }
-	inline LimitedValue operator- (const _Base& value) const { return { RANGE_LIMIT(_Min, _Max, (_value - value)) }; }
-	inline LimitedValue operator* (const _Base& value) const { return { RANGE_LIMIT(_Min, _Max, (_value * value)) }; }
-	inline LimitedValue operator/ (const _Base& value) const { return { RANGE_LIMIT(_Min, _Max, (_value / value)) }; }
-	inline int operator% (const _Base& value) const { return _value % value; }
-	inline LimitedValue operator+ (const int& value) const { return { static_cast<_Base>(value + *this) }; }
-	inline LimitedValue operator- (const int& value) const { return { static_cast<_Base>(value - *this) }; }
-	inline LimitedValue operator* (const int& value) const { return { static_cast<_Base>(value * *this) }; }
-	inline LimitedValue operator/ (const int& value) const { return { static_cast<_Base>(value / *this) }; }
-	inline int operator% (const int& value) const { return _value % (int) value; }
-
-	inline LimitedValue& operator++ () { _value = RANGE_LIMIT(_Min, _Max, (_value + 1)); return *this; }
-	inline LimitedValue operator++ (int) { LimitedValue old{ *this }; operator++(); return std::move(old); }
-
-	inline LimitedValue& operator-- () { _value = RANGE_LIMIT(_Min, _Max, (_value - 1)); return *this; }
-	inline LimitedValue operator-- (int) { LimitedValue old{ *this }; operator--(); return std::move(old); }
-
-	inline bool operator== (const LimitedValue& other) const { return _value == other._value; }
-	inline bool operator!= (const LimitedValue& other) const { return _value != other._value; }
-	inline bool operator> (const LimitedValue& other) const { return _value > other._value; }
-	inline bool operator< (const LimitedValue& other) const { return _value < other._value; }
-	inline bool operator>= (const LimitedValue& other) const { return _value >= other._value; }
-	inline bool operator<= (const LimitedValue& other) const { return _value <= other._value; }
-	inline bool operator== (const _Base& value) const { return _value == value; }
-	inline bool operator!= (const _Base& value) const { return _value != value; }
-	inline bool operator> (const _Base& value) const { return _value > value; }
-	inline bool operator< (const _Base& value) const { return _value < value; }
-	inline bool operator>= (const _Base& value) const { return _value >= value; }
-	inline bool operator<= (const _Base& value) const { return _value <= value; }
-	inline bool operator== (const int& value) const { return _value == static_cast<_Base>(value); }
-	inline bool operator!= (const int& value) const { return _value != static_cast<_Base>(value); }
-	inline bool operator> (const int& value) const { return _value > static_cast<_Base>(value); }
-	inline bool operator< (const int& value) const { return _value < static_cast<_Base>(value); }
-	inline bool operator>= (const int& value) const { return _value >= static_cast<_Base>(value); }
-	inline bool operator<= (const int& value) const { return _value <= static_cast<_Base>(value); }
-
-	inline bool operator! () const { return _value == _Min; }
-	inline operator bool() const { return _value != _Min; }
-
-	inline operator _Base() { return _value; }
-
-	inline explicit operator float() { return static_cast<float>(_value); }
-	inline explicit operator double() { return static_cast<double>(_value); }
-	inline explicit operator long double() { return static_cast<long double>(_value); }
-
-	static constexpr _Base min() { return _Min; }
-	static constexpr _Base max() { return _Max; }
-	static constexpr _Base base(const LimitedValue& value) { return value._value; }
-	static constexpr _Base filter(const _Base& value) { return static_cast<_Base>(LimitedValue{ value }); }
-
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline _Base operator+ (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value);
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline _Base operator- (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value);
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline _Base operator* (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value);
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline _Base operator/ (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value);
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline _Base operator% (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value);
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline int operator+ (const int& base, const LimitedValue<_Base, _Min, _Max>& value);
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline int operator- (const int& base, const LimitedValue<_Base, _Min, _Max>& value);
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline int operator* (const int& base, const LimitedValue<_Base, _Min, _Max>& value);
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline int operator/ (const int& base, const LimitedValue<_Base, _Min, _Max>& value);
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline int operator% (const int& base, const LimitedValue<_Base, _Min, _Max>& value);
-
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline bool operator== (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value);
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline bool operator!= (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value);
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline bool operator> (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value);
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline bool operator< (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value);
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline bool operator>= (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value);
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline bool operator<= (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value);
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline bool operator== (const int& base, const LimitedValue<_Base, _Min, _Max>& value);
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline bool operator!= (const int& base, const LimitedValue<_Base, _Min, _Max>& value);
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline bool operator> (const int& base, const LimitedValue<_Base, _Min, _Max>& value);
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline bool operator< (const int& base, const LimitedValue<_Base, _Min, _Max>& value);
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline bool operator>= (const int& base, const LimitedValue<_Base, _Min, _Max>& value);
-	template<class _Base, _Base _Min, _Base _Max>
-	friend inline bool operator<= (const int& base, const LimitedValue<_Base, _Min, _Max>& value);
+private:
+	template<class _Ty>
+	void _InsertValue(const std::string& key, const _Ty& value, void (Data::*setFunction)(const _Ty&))
+	{
+		auto it = _map.find(key);
+		if (it == _map.end())
+		{
+			auto eit = _map.emplace(std::pair<std::string, Data>{ key, {} });
+			if (eit.second)
+				(eit.first->second.*setFunction)(value);
+		}
+		else (it->second.*setFunction)(value);
+	}
 };
-
-template<class _Base, _Base _Min, _Base _Max>
-inline _Base operator+ (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value) { return base + value._value; }
-template<class _Base, _Base _Min, _Base _Max>
-inline _Base operator- (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value) { return base - value._value; }
-template<class _Base, _Base _Min, _Base _Max>
-inline _Base operator* (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value) { return base * value._value; }
-template<class _Base, _Base _Min, _Base _Max>
-inline _Base operator/ (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value) { return base / value._value; }
-template<class _Base, _Base _Min, _Base _Max>
-inline _Base operator% (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value) { return base % value._value; }
-template<class _Base, _Base _Min, _Base _Max>
-inline int operator+ (const int& base, const LimitedValue<_Base, _Min, _Max>& value) { return base + static_cast<int>(value._value); }
-template<class _Base, _Base _Min, _Base _Max>
-inline int operator- (const int& base, const LimitedValue<_Base, _Min, _Max>& value) { return base - static_cast<int>(value._value); }
-template<class _Base, _Base _Min, _Base _Max>
-inline int operator* (const int& base, const LimitedValue<_Base, _Min, _Max>& value) { return base * static_cast<int>(value._value); }
-template<class _Base, _Base _Min, _Base _Max>
-inline int operator/ (const int& base, const LimitedValue<_Base, _Min, _Max>& value) { return base / static_cast<int>(value._value); }
-template<class _Base, _Base _Min, _Base _Max>
-inline int operator% (const int& base, const LimitedValue<_Base, _Min, _Max>& value) { return base % static_cast<int>(value._value); }
-
-template<class _Base, _Base _Min, _Base _Max>
-inline bool operator== (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value) { return base == value._value; }
-template<class _Base, _Base _Min, _Base _Max>
-inline bool operator!= (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value) { return base != value._value; }
-template<class _Base, _Base _Min, _Base _Max>
-inline bool operator> (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value) { return base > value._value; }
-template<class _Base, _Base _Min, _Base _Max>
-inline bool operator< (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value) { return base < value._value; }
-template<class _Base, _Base _Min, _Base _Max>
-inline bool operator>= (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value) { return base >= value._value; }
-template<class _Base, _Base _Min, _Base _Max>
-inline bool operator<= (const _Base& base, const LimitedValue<_Base, _Min, _Max>& value) { return base <= value._value; }
-template<class _Base, _Base _Min, _Base _Max>
-inline bool operator== (const int& base, const LimitedValue<_Base, _Min, _Max>& value) { return base == static_cast<int>(value._value); }
-template<class _Base, _Base _Min, _Base _Max>
-inline bool operator!= (const int& base, const LimitedValue<_Base, _Min, _Max>& value) { return base != static_cast<int>(value._value); }
-template<class _Base, _Base _Min, _Base _Max>
-inline bool operator> (const int& base, const LimitedValue<_Base, _Min, _Max>& value) { return base > static_cast<int>(value._value); }
-template<class _Base, _Base _Min, _Base _Max>
-inline bool operator< (const int& base, const LimitedValue<_Base, _Min, _Max>& value) { return base < static_cast<int>(value._value); }
-template<class _Base, _Base _Min, _Base _Max>
-inline bool operator>= (const int& base, const LimitedValue<_Base, _Min, _Max>& value) { return base >= static_cast<int>(value._value); }
-template<class _Base, _Base _Min, _Base _Max>
-inline bool operator<= (const int& base, const LimitedValue<_Base, _Min, _Max>& value) { return base <= static_cast<int>(value._value); }
-

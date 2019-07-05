@@ -3,9 +3,11 @@
 #include <pybind11/stl.h>
 #include <pybind11/operators.h>
 #include <pybind11/functional.h>
+#include <set>
 
 #include "assets.h"
 #include "bubbles.h"
+#include "paths.h"
 
 #include <functional>
 
@@ -38,6 +40,45 @@ py::object pylib::executePythonScript(const std::string& filepath)
 	{
 		std::cout << "Python exception occurs: " << ex.what() << std::endl;
 		return py::none();
+	}
+}
+
+void loadConfigFile(const std::string& filePath, py::dict& locals, )
+
+void pylib::loadConfig()
+{
+	try
+	{
+		py::dict locals{};
+		py::eval_file(static_cast<std::string>(Path::ConfigFile), py::globals(), locals);
+
+		Config& config = __ConfigInstance();
+		for (auto& value : locals)
+		{
+			try
+			{
+				std::string key{ value.first.cast<std::string>() };
+				if (value.second.is_none())
+					config.setNull(key);
+				else if (py::isinstance<py::bool_>(value.second))
+					config.setBoolean(key, value.second.cast<bool>());
+				else if (py::isinstance<py::int_>(value.second))
+					config.setInteger(key, value.second.cast<int32>());
+				else if (py::isinstance<py::float_>(value.second))
+					config.setFloat(key, value.second.cast<float>());
+				else if (py::isinstance<py::str>(value.second))
+					config.setString(key, value.second.cast<std::string>());
+				else config.setNull(key);
+			}
+			catch (...)
+			{
+				std::cout << "Invalid Config entry: " << value.first << " => " << value.second << std::endl;
+			}
+		}
+	}
+	catch (py::error_already_set ex)
+	{
+		std::cout << "Python exception occurs: " << ex.what() << std::endl;
 	}
 }
 
